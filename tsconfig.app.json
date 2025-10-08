@@ -22,7 +22,15 @@
     "noUnusedParameters": true,
     "erasableSyntaxOnly": true,
     "noFallthroughCasesInSwitch": true,
-    "noUncheckedSideEffectImports": true
+    "noUncheckedSideEffectImports": true,
+    "baseUrl": "./src", // Ruta base para los imports
+    "paths": {
+      "@/*": ["./*"], // Ejemplo: "@/shared" -> "./src/shared"
+      "@components/*": ["components/*"], // Ejemplo: "@components/Button" -> "./src/components/Button"
+      "@pages/*": ["pages/*"] // Ejemplo: "@pages/Home" -> "./src/pages/Home"
+      // Agrega más alias si es necesario
+    }
   },
+  "exclude": ["node_modules", "dist"],
   "include": ["src"]
 }

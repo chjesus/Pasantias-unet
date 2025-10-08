@@ -1,0 +1,20 @@
+# Ignorar la carpeta node_modules
+/node_modules/
+
+# Ignorar archivos específicos
+package-lock.json
+yarn.lock
+
+# Ignorar todos los archivos en la carpeta public
+/public/
+
+# Ignorar archivos de configuración local
+.env
+.env.local
+
+# Ignorar archivos de TypeScript generados
+**/*.d.ts
+
+pnpm-lock.yaml
+
+.prettierrc
