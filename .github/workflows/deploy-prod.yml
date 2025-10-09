@@ -1,0 +1,37 @@
+name: Deploy to AWS S3 on prod
+
+on:
+  push:
+    branches:
+      - prod
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Build project
+        run: pnpm run build
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
+      - name: Deploy to S3
+        run: aws s3 sync ./dist s3://<TU_BUCKET_S3> --delete
+
+# Reemplaza <TU_BUCKET_S3> por el nombre de tu bucket S3.
+# Asegúrate de agregar los secretos AWS_ACCESS_KEY_ID y AWS_SECRET_ACCESS_KEY en la configuración de tu repositorio.
