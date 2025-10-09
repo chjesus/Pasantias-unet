@@ -1,12 +1,18 @@
 import { lazy } from 'react'
 import { createBrowserRouter } from 'react-router'
 
-const HomePage = lazy(() => import('@pages/Home'))
-const LoginPage = lazy(() => import('@pages/Login'))
+import Loadable from '@/utils/Loadable'
+
+const HomePage = Loadable(lazy(() => import('@pages/Home')))
+const LoginPage = Loadable(lazy(() => import('@pages/Login')))
+const RegisterPage = Loadable(lazy(() => import('@pages/Register')))
+const ForgotPasswordPage = Loadable(lazy(() => import('@pages/ForgotPassword')))
 
 const router = createBrowserRouter([
   { index: true, path: '/', element: <HomePage /> },
+  { path: '/signup', element: <RegisterPage /> },
   { path: '/login', element: <LoginPage /> },
+  { path: '/forgot-password', element: <ForgotPasswordPage /> },
   { path: '*', element: <div>ERROR 404</div> },
 ])
 
