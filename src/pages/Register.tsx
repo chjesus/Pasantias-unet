@@ -1,29 +1,24 @@
 import { Link } from 'react-router'
 
-import Box from '@mui/material/Box'
-import Card from '@mui/material/Card'
 import Grid from '@mui/material/Grid'
 import Button from '@mui/material/Button'
+import Checkbox from '@mui/material/Checkbox'
 import Typography from '@mui/material/Typography'
 import OutlinedInput from '@mui/material/OutlinedInput'
 import InputAdornment from '@mui/material/InputAdornment'
+import FormControlLabel from '@mui/material/FormControlLabel'
 
 import LockIcon from '@mui/icons-material/Lock'
 import EmailIcon from '@mui/icons-material/Email'
 import PersonIcon from '@mui/icons-material/Person'
 import SmartphoneIcon from '@mui/icons-material/Smartphone'
 
+import { BoxStyled, CardStyled } from '@/pages/styled/CommonStyled'
+
 function Register() {
   return (
-    <Box
-      sx={{
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        flexGrow: 1,
-      }}
-    >
-      <Card sx={{ maxWidth: { xs: 325, sm: 448 }, p: { xs: 2, sm: 7 } }}>
+    <BoxStyled>
+      <CardStyled>
         <Grid container spacing={2}>
           <Grid size={12}>
             <Typography
@@ -118,13 +113,19 @@ function Register() {
             </Button>
           </Grid>
           <Grid size={12}>
+            <FormControlLabel
+              control={<Checkbox />}
+              label="Solicitar Servicio Urgente / Mismo Día"
+            />
+          </Grid>
+          <Grid size={12}>
             <Button variant="text" component={Link} fullWidth to="/login">
               ¿Ya tienes una cuenta? Inicia Sesión
             </Button>
           </Grid>
         </Grid>
-      </Card>
-    </Box>
+      </CardStyled>
+    </BoxStyled>
   )
 }
 
