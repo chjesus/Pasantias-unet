@@ -1,0 +1,64 @@
+.filters {
+  width: 280px;
+  padding: 16px 16px 0;
+  height: fit-content;
+
+  &__title {
+    margin-bottom: 16px !important;
+    font-weight: 600 !important;
+    color: var(--mui-palette-primary-main);
+  }
+
+  &__heading {
+    font-weight: 600 !important;
+    color: var(--mui-palette-text-primary);
+    font-size: 0.9rem !important;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  &__summary {
+    background-color: var(--mui-palette-grey-50);
+
+    &:hover {
+      background-color: var(--mui-palette-grey-100);
+    }
+
+    &.Mui-expanded {
+      background-color: var(--mui-palette-grey-100);
+    }
+  }
+
+  :global(.MuiAccordion-root) {
+    margin: 0 -16px;
+    box-shadow: none;
+    border-top: 1px solid rgba(0, 0, 0, 0.12);
+
+    &:before {
+      display: none;
+    }
+
+    &:last-child {
+      border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+    }
+  }
+
+  :global(.MuiAccordionDetails-root) {
+    padding: 16px;
+    background-color: white;
+  }
+
+  &__price {
+    display: flex;
+    gap: 16px;
+    margin-top: 8px;
+
+    .MuiTextField-root {
+      width: 100%;
+    }
+  }
+
+  :global(.MuiFormControlLabel-label) {
+    font-size: 0.875rem;
+  }
+}
