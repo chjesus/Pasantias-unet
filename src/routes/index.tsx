@@ -1,7 +1,6 @@
 import { lazy } from 'react'
 import { createBrowserRouter } from 'react-router-dom'
 
-import Loadable from '@/utils/Loadable'
 import dashboardRoutes from '@/routes/dashboardRoutes'
 
 const HomePage = Loadable(lazy(() => import('@pages/Home')))
@@ -21,6 +20,7 @@ const router = createBrowserRouter([
   { path: '/search', element: <SearchDetailPage /> },
   // { path: '/services/:id', element: <ServiceDetailPage /> },
   { path: '*', element: <div>ERROR 404</div> },
+  authRoutes,
   dashboardRoutes,
 ])
 
