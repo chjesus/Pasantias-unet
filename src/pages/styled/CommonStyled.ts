@@ -6,10 +6,11 @@ import Button from '@mui/material/Button'
 
 import type { LinkProps } from 'react-router'
 import type { ButtonProps } from '@mui/material/Button'
+import type { BoxProps } from '@mui/material/Box'
 
 type RouterLinkButtonProps = ButtonProps & LinkProps
 
-export const BoxStyled = styled(Box)(({ theme }) => ({
+export const BoxStyled = styled(Box)<BoxProps>(({ theme }) => ({
   display: 'flex',
   justifyContent: 'center',
   alignItems: 'center',

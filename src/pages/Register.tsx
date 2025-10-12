@@ -16,8 +16,14 @@ import SmartphoneIcon from '@mui/icons-material/Smartphone'
 import { BoxStyled, CardStyled } from '@/pages/styled/CommonStyled'
 
 function Register() {
+
+  const onSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    console.log('submit')
+  }
+
   return (
-    <BoxStyled>
+    <BoxStyled component="form" onSubmit={onSubmit}>
       <CardStyled>
         <Grid container spacing={2}>
           <Grid size={12}>
@@ -108,7 +114,7 @@ function Register() {
           </Grid>
           <Grid size={12}></Grid>
           <Grid size={12}>
-            <Button variant="contained" fullWidth>
+            <Button type="submit" variant="contained" fullWidth>
               Registrarse
             </Button>
           </Grid>
