@@ -15,11 +15,10 @@ const dashboardRoutes = {
     {
       path: '',
       children: [
-        { index: true, element: <Navigate to="pagina1" replace /> },
-        { path: 'pagina1', element: <div>Dashboard Page 1</div> },
-        { path: 'pagina2', element: <div>Dashboard Page 2</div> },
+        { index: true, element: <Navigate to="services" replace /> },
         { path: '/services', element: <ServicesPage /> },
         { path: '/search', element: <SearchDetailPage /> },
+        { path: '/search/:text', element: <SearchDetailPage /> },
         { path: '/services/:id', element: <ServiceDetailPage /> },
         { path: '/cart', element: <CartPage /> },
         

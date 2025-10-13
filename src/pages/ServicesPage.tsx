@@ -8,22 +8,18 @@ import ServiceCard from '../components/ui/ServiceCard/ServiceCard'
 import { featuredServices, serviceCategories } from '../assets/mockData'
 import styles from './ServicesPage.module.scss'
 import { Fragment } from 'react/jsx-runtime'
-import Header from '@/components/layout/Dashboard/Header'
+import { useNavigate } from 'react-router'
 // import { useNavigate } from 'react-router-dom'
 
 const ServicesPage = () => {
-  // Temporarily disabled until Router is configured
-  // const navigate = useNavigate()
+  const navigate = useNavigate()
 
   const handleServiceClick = (serviceId: string) => {
-    console.log('Service clicked:', serviceId)
-    // Will be implemented when Router is configured:
-    // navigate(`/services/${serviceId}`)
+    navigate(`/services/${serviceId}`)
   }
 
   return (
     <Fragment>
-      <Header />
       <Box component="div" className={styles.services}>
         {/* Hero Section */}
         <Container

@@ -1,5 +1,8 @@
-import { Link } from 'react-router'
+import React from 'react'
+import { Link, useNavigate } from 'react-router'
+import Button from '@mui/material/Button'
 import { Box, Container, IconButton, InputAdornment, TextField } from '@mui/material'
+import ClearIcon from '@mui/icons-material/Clear'
 import SearchIcon from '@mui/icons-material/Search'
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart'
 import PersonIcon from '@mui/icons-material/Person'
@@ -8,6 +11,8 @@ import styles from './Header.module.scss'
 
 function Header() {
   const { isAuthenticated, login, logout } = useAuthStore()
+  const navigate = useNavigate()
+  const [searchText, setSearchText] = React.useState('')
 
   const handleAuthClick = () => {
     if (isAuthenticated) {
@@ -25,61 +30,82 @@ function Header() {
     <header className={styles.header}>
       <Container maxWidth={false} className={styles.header__container}>
         {/* Logo */}
-        <Link to="/" className={styles.header__logo}>
-          <img src="/krix-logo.svg" alt="Krix" />
-        </Link>
+          <Button component={Link} to="/" className={styles.header__logo} sx={{ p: 0, minWidth: 0 }}>
+            <img src="/krix-logo.svg" alt="Krix" />
+          </Button>
 
         {/* Navigation */}
         <nav className={styles.header__nav}>
-          <Link to="/" className={styles['header__nav-item']}>
-            Inicio
-          </Link>
-          <Link to="/servicios" className={styles['header__nav-item']}>
-            Servicios
-          </Link>
-          <Link to="/nosotros" className={styles['header__nav-item']}>
-            Nosotros
-          </Link>
-          <Link to="/contacto" className={styles['header__nav-item']}>
-            Contacto
-          </Link>
+            <Button component={Link} to="/services" className={styles['header__nav-item']}>
+              Inicio
+            </Button>
+            <Button component={Link} to="/about-us" className={styles['header__nav-item']}>
+              Nosotros
+            </Button>
+            <Button component={Link} to="/contact" className={styles['header__nav-item']}>
+              Contacto
+            </Button>
         </nav>
 
         {/* Search */}
         <Box component="div" className={styles.header__search}>
-          <TextField
-            placeholder="Busca un servicio..."
-            variant="outlined"
-            size="small"
-            fullWidth
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <SearchIcon />
-                </InputAdornment>
-              ),
-            }}
-          />
+              <TextField
+                placeholder="Busca un servicio..."
+                variant="outlined"
+                size="small"
+                fullWidth
+                value={searchText}
+                onChange={e => {
+                  const value = e.target.value
+                  setSearchText(value)
+                  if (value.trim().length > 0) {
+                    navigate(`/search/${encodeURIComponent(value)}`)
+                  }
+                }}
+                onBlur={() => setSearchText('')}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <SearchIcon />
+                    </InputAdornment>
+                  ),
+                  endAdornment: (
+                    searchText ? (
+                      <InputAdornment position="end">
+                        <IconButton
+                          size="small"
+                          aria-label="Limpiar búsqueda"
+                          onClick={() => {
+                            setSearchText('')
+                            navigate('/search')
+                          }}
+                          edge="end"
+                        >
+                          <ClearIcon />
+                        </IconButton>
+                      </InputAdornment>
+                    ) : null
+                  )
+                }}
+              />
         </Box>
 
         {/* Actions */}
         <div className={styles.header__actions}>
-          {isAuthenticated && (
+            {isAuthenticated && (
+              <IconButton
+                onClick={() => navigate('/cart')}
+                className={styles['header__actions-cart']}
+              >
+                <ShoppingCartIcon />
+              </IconButton>
+            )}
             <IconButton
-              component={Link}
-              to="/carrito"
-              className={styles['header__actions-cart']}
+              onClick={() => navigate(isAuthenticated ? '/profile' : '/login')}
+              className={styles['header__actions-profile']}
             >
-              <ShoppingCartIcon />
+              <PersonIcon />
             </IconButton>
-          )}
-          <IconButton
-            component={Link}
-            to={isAuthenticated ? "/perfil" : "/login"}
-            className={styles['header__actions-profile']}
-          >
-            <PersonIcon />
-          </IconButton>
           <IconButton
             onClick={handleAuthClick}
             sx={{
