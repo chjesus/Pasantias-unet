@@ -1,16 +1,18 @@
 import { Link } from 'react-router'
+import { useForm, Controller } from 'react-hook-form'
 
 import Grid from '@mui/material/Grid'
 import Button from '@mui/material/Button'
 import Typography from '@mui/material/Typography'
-import OutlinedInput from '@mui/material/OutlinedInput'
-import InputAdornment from '@mui/material/InputAdornment'
-import TextField from '@mui/material/TextField';
-import Input from '@mui/material/Input';
 
 import EmailIcon from '@mui/icons-material/Email'
 import LockIcon from '@mui/icons-material/Lock'
 import InfoIcon from '@mui/icons-material/Info'
+
+import InputMUI from '@/components/ui/Input/Input'
+
+import { PLACEHOLDER } from '@/utils/constant/placeholder'
+import { RULES_EMAIL, MESSAGE_RULES_REQUIRED } from '@/utils/constant/rules'
 
 import {
   BoxStyled,
@@ -18,9 +20,22 @@ import {
   ButtonLinkStyled,
 } from '@/pages/styled/CommonStyled'
 
+type LoginFormData = { email: string; password: string }
+const defaultValues = { email: '', password: '' }
+
 function Login() {
+  const {
+    handleSubmit,
+    control,
+    formState: { errors },
+  } = useForm<LoginFormData>({ defaultValues, mode: 'onChange' })
+
+  const onSubmit = (data: LoginFormData) => {
+    console.log(data)
+  }
+
   return (
-    <BoxStyled>
+    <BoxStyled component="form" onSubmit={handleSubmit(onSubmit)}>
       <CardStyled>
         <Grid container spacing={2}>
           <Grid size={12}>
@@ -43,41 +58,48 @@ function Login() {
           </Grid>
           <Grid size={12}>
             <Typography variant="overline">Correo Electrónico</Typography>
-            <OutlinedInput
-              size="small"
-              placeholder="tu@ejemplo.com"
-              sx={{ width: '100%' }}
-              startAdornment={
-                <InputAdornment position="start">
-                  <EmailIcon sx={{ fontSize: 18 }} />
-                </InputAdornment>
-              }
+            <Controller
+              name="email"
+              control={control}
+              rules={{
+                required: MESSAGE_RULES_REQUIRED['EMAIL'],
+                pattern: {
+                  value: RULES_EMAIL['REGEX'],
+                  message: RULES_EMAIL['MESSAGE'],
+                },
+              }}
+              render={({ field }) => (
+                <InputMUI
+                  field={field}
+                  Icon={EmailIcon}
+                  error={errors.email?.message}
+                  placeholder={PLACEHOLDER['EMAIL']}
+                />
+              )}
             />
           </Grid>
           <Grid size={12}>
             <Typography variant="overline">Contraseña</Typography>
-            <OutlinedInput
-              size="small"
-              type="password"
-              placeholder="Password"
-              sx={{ width: '100%' }}
-              startAdornment={
-                <InputAdornment position="start">
-                  <LockIcon sx={{ fontSize: 18 }} />
-                </InputAdornment>
-              }
+            <Controller
+              name="password"
+              control={control}
+              rules={{ required: MESSAGE_RULES_REQUIRED['PASSWORD'] }}
+              render={({ field }) => (
+                <InputMUI
+                  field={field}
+                  Icon={LockIcon}
+                  error={errors.password?.message}
+                  placeholder={PLACEHOLDER['PASSWORD']}
+                  type="password"
+                />
+              )}
             />
-            <ButtonLinkStyled
-              variant="text"
-              component={Link}
-              to="/forgot-password"
-              sx={{ px: 0 }}
-            >
+            <ButtonLinkStyled component={Link} to="/forgot-password">
               Olvidé mi contraseña
             </ButtonLinkStyled>
           </Grid>
           <Grid size={12}>
-            <Button variant="contained" fullWidth>
+            <Button type="submit" variant="contained" fullWidth>
               Iniciar Sesión
             </Button>
           </Grid>
