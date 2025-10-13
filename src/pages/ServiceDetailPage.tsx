@@ -11,7 +11,9 @@ import {
   AccordionDetails,
   Switch,
   Card,
-  CardContent
+  CardContent,
+  Alert,
+  Snackbar
 } from '@mui/material'
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
@@ -24,6 +26,8 @@ import MetricCard from '../components/ui/MetricCard'
 import MaterialSelector from '../components/ui/MaterialSelector'
 import ServiceGallery from '../components/ui/ServiceGallery'
 import { getServiceById, type ServiceData } from '../assets/mockServiceData'
+import { useCartStore } from '../store/cartStore'
+import type { Material } from '../components/ui/MaterialSelector/MaterialSelector'
 import styles from './ServiceDetailPage.module.scss'
 import { formattedPrice } from '@/utils/formattedPrice'
 
@@ -33,6 +37,9 @@ interface ServiceDetailPageProps {
 
 const ServiceDetailPage = ({ serviceId = '1' }: ServiceDetailPageProps) => {
   const [visibleReviews, setVisibleReviews] = useState(3)
+  const [selectedMaterials, setSelectedMaterials] = useState<Material[]>([])
+  const [showAddedAlert, setShowAddedAlert] = useState(false)
+  const { addItem } = useCartStore()
   
   // Obtener datos del servicio por ID
   const serviceData = getServiceById(serviceId)
@@ -60,6 +67,28 @@ const ServiceDetailPage = ({ serviceId = '1' }: ServiceDetailPageProps) => {
 
   const handleLoadMore = () => {
     setVisibleReviews(prev => prev + 3)
+  }
+
+  const handleMaterialSelection = (materials: Material[]) => {
+    setSelectedMaterials(materials)
+  }
+
+  const handleAddToCart = () => {
+    const configuration = selectedMaterials.map(material => material.label)
+    
+    const cartItem = {
+      id: serviceData.id,
+      name: serviceData.title,
+      quantity: 1,
+      price: serviceData.pricing.price,
+      currency: serviceData.pricing.currency,
+      providerName: serviceData.provider.name,
+      image: serviceData.gallery[0] || '/api/placeholder/80/80',
+      configuration
+    }
+
+    addItem(cartItem)
+    setShowAddedAlert(true)
   }
 
   const displayedReviews = serviceData.reviews.slice(0, visibleReviews)
@@ -222,9 +251,7 @@ const ServiceDetailPage = ({ serviceId = '1' }: ServiceDetailPageProps) => {
                   availableMaterials={serviceData.materials}
                   title="Materiales del Servicio"
                   maxSelections={5}
-                  onSelectionChange={(selectedMaterials) => {
-                    console.log('Materiales seleccionados:', selectedMaterials)
-                  }}
+                  onSelectionChange={handleMaterialSelection}
                 />
                 
                 <Box className={styles['service-detail__duration-info']}>
@@ -298,8 +325,9 @@ const ServiceDetailPage = ({ serviceId = '1' }: ServiceDetailPageProps) => {
                   fullWidth
                   className={styles['service-detail__add-service-button']}
                   sx={{ mt: 2 }}
+                  onClick={handleAddToCart}
                 >
-                  Agregar servicio
+                  Agregar al Carrito
                 </Button>
               </CardContent>
             </Card>
@@ -425,6 +453,22 @@ const ServiceDetailPage = ({ serviceId = '1' }: ServiceDetailPageProps) => {
           </Box>
         </Container>
       </div>
+
+      {/* Snackbar para mostrar mensaje de agregado al carrito */}
+      <Snackbar
+        open={showAddedAlert}
+        autoHideDuration={3000}
+        onClose={() => setShowAddedAlert(false)}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+      >
+        <Alert
+          onClose={() => setShowAddedAlert(false)}
+          severity="success"
+          variant="filled"
+        >
+          ¡Servicio agregado al carrito exitosamente!
+        </Alert>
+      </Snackbar>
     </>
   )
 }

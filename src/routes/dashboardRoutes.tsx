@@ -1,17 +1,28 @@
 import { Navigate } from 'react-router'
+import Loadable from '@/utils/Loadable'
+import { lazy } from 'react'
 
 import DashboardLayout from '@/components/layout/Dashboard'
+const ServicesPage = Loadable(lazy(() => import('@pages/ServicesPage')))
+const SearchDetailPage = Loadable(lazy(() => import('@pages/SearchDetailPage')))
+const ServiceDetailPage = Loadable(lazy(() => import('@pages/ServiceDetailPage')))
+const CartPage = Loadable(lazy(() => import('@pages/CartPage')))
 
 const dashboardRoutes = {
   path: '/',
   element: <DashboardLayout />,
   children: [
     {
-      path: 'dashboard',
+      path: '',
       children: [
         { index: true, element: <Navigate to="pagina1" replace /> },
         { path: 'pagina1', element: <div>Dashboard Page 1</div> },
         { path: 'pagina2', element: <div>Dashboard Page 2</div> },
+        { path: '/services', element: <ServicesPage /> },
+        { path: '/search', element: <SearchDetailPage /> },
+        { path: '/services/:id', element: <ServiceDetailPage /> },
+        { path: '/cart', element: <CartPage /> },
+        
       ]
     }
   ],

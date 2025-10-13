@@ -5,6 +5,11 @@ export interface CartItem {
   id: string;
   name: string;
   quantity: number;
+  price: number;
+  currency: string;
+  providerName: string;
+  image: string;
+  configuration?: string[]; // Configuración desde los chips de material selector
 }
 
 interface CartState {

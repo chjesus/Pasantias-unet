@@ -1,0 +1,193 @@
+.cart-item {
+  margin-bottom: 1rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.3s ease;
+
+  &:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+
+  &__content {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1rem !important;
+  }
+
+  &__image-container {
+    flex-shrink: 0;
+    width: 80px;
+    height: 80px;
+    border-radius: 8px;
+    overflow: hidden;
+    background-color: #f5f5f5;
+  }
+
+  &__image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  &__details {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  &__title {
+    font-size: 1rem !important;
+    font-weight: 600 !important;
+    line-height: 1.3 !important;
+    margin: 0 !important;
+    color: #1a1a1a;
+  }
+
+  &__provider {
+    font-size: 0.875rem !important;
+    color: #666 !important;
+    margin: 0 !important;
+  }
+
+  &__configuration {
+    margin-top: 0.25rem;
+  }
+
+  &__configuration-label {
+    display: block;
+    font-size: 0.75rem !important;
+    color: #888;
+    margin-bottom: 0.25rem;
+  }
+
+  &__chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+  }
+
+  &__chip {
+    font-size: 0.65rem !important;
+    height: 20px !important;
+    
+    .MuiChip-label {
+      padding: 0 6px !important;
+    }
+  }
+
+  &__price {
+    font-size: 1.1rem !important;
+    font-weight: 700 !important;
+    margin: 0 !important;
+    color: #1976d2;
+  }
+
+  &__controls {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    flex-shrink: 0;
+  }
+
+  &__quantity-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    background-color: #f8f9fa;
+    border-radius: 20px;
+    padding: 0.25rem 0.5rem;
+  }
+
+  &__quantity-btn {
+    width: 28px !important;
+    height: 28px !important;
+    background-color: white !important;
+    border: 1px solid #e0e0e0 !important;
+    
+    &:hover {
+      background-color: #f5f5f5 !important;
+      border-color: #1976d2 !important;
+    }
+
+    &:disabled {
+      background-color: #f5f5f5 !important;
+      border-color: #e0e0e0 !important;
+      color: #ccc !important;
+    }
+  }
+
+  &__quantity {
+    min-width: 20px;
+    text-align: center;
+    font-weight: 600;
+    font-size: 0.875rem;
+  }
+
+  &__delete-btn {
+    width: 28px !important;
+    height: 28px !important;
+    background-color: white !important;
+    border: 1px solid #e0e0e0 !important;
+    color: #d32f2f !important;
+    
+    &:hover {
+      background-color: rgba(211, 47, 47, 0.1) !important;
+      border-color: #d32f2f !important;
+    }
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 768px) {
+  .cart-item {
+    &__content {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    &__image-container {
+      width: 60px;
+      height: 60px;
+    }
+
+    &__controls {
+      flex-direction: row;
+      justify-content: space-between;
+      width: 100%;
+      margin-top: 0.5rem;
+    }
+
+    &__title {
+      font-size: 0.9rem !important;
+    }
+
+    &__price {
+      font-size: 1rem !important;
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .cart-item {
+    &__content {
+      padding: 0.75rem !important;
+    }
+
+    &__image-container {
+      width: 50px;
+      height: 50px;
+    }
+
+    &__chips {
+      gap: 0.2rem;
+    }
+
+    &__chip {
+      font-size: 0.6rem !important;
+      height: 18px !important;
+    }
+  }
+}
