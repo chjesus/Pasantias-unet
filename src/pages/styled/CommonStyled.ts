@@ -8,7 +8,7 @@ import type { LinkProps } from 'react-router'
 import type { ButtonProps } from '@mui/material/Button'
 import type { BoxProps } from '@mui/material/Box'
 
-type RouterLinkButtonProps = ButtonProps & LinkProps
+type LinkBtnProps = ButtonProps & LinkProps
 
 export const BoxStyled = styled(Box)<BoxProps>(({ theme }) => ({
   display: 'flex',
@@ -32,6 +32,7 @@ export const CardStyled = styled(Card)(({ theme }) => ({
   },
 }))
 
-export const ButtonLinkStyled = styled(Button)<RouterLinkButtonProps>(() => ({
+export const ButtonLinkStyled = styled(Button)<LinkBtnProps>(({ theme }) => ({
+  padding: theme.spacing(0),
   '&:hover': { backgroundColor: 'transparent', textDecoration: 'underline' },
 }))
