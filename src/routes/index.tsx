@@ -7,12 +7,12 @@ import Loadable from '@/utils/Loadable'
 
 const ServicesPage = Loadable(lazy(() => import('@pages/ServicesPage')))
 const SearchDetailPage = Loadable(lazy(() => import('@pages/SearchDetailPage')))
-// const ServiceDetailPage = Loadable(lazy(() => import('@pages/ServiceDetailPage')))
+const ServiceDetailPage = Loadable(lazy(() => import('@pages/ServiceDetailPage')))
 
 const router = createBrowserRouter([
   { path: '/services', element: <ServicesPage /> },
   { path: '/search', element: <SearchDetailPage /> },
-  // { path: '/services/:id', element: <ServiceDetailPage /> },
+  { path: '/services/:id', element: <ServiceDetailPage /> },
   { path: '*', element: <div>ERROR 404</div> },
   authRoutes,
   dashboardRoutes,

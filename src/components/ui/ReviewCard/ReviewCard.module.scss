@@ -1,0 +1,93 @@
+.review-card {
+  padding: 24px;
+  margin-bottom: 24px;
+  border-radius: 12px;
+  background-color: white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  border: 1px solid var(--mui-palette-divider);
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+
+  &__header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+
+  &__avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    overflow: hidden;
+
+    & :global(.MuiSvgIcon-root) {
+      color: var(--mui-palette-text-secondary);
+    }
+  }
+
+  &__info {
+    flex: 1;
+  }
+
+  &__name {
+    font-weight: 600;
+    font-size: 1rem;
+    color: var(--mui-palette-text-primary);
+    margin-bottom: 2px;
+  }
+
+  &__date {
+    font-size: 0.875rem;
+    color: var(--mui-palette-text-secondary);
+  }
+
+  &__rating {
+    margin-bottom: 16px;
+  }
+
+  &__stars {
+    & :global(.MuiRating-iconFilled) {
+      color: var(--mui-palette-primary-main);
+    }
+  }
+
+  &__comment {
+    font-size: 0.938rem;
+    line-height: 1.6;
+    color: var(--mui-palette-text-secondary);
+  }
+
+  // Hover effect
+  &:hover {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+    transform: translateY(-2px);
+    transition: all 0.3s ease;
+  }
+}
+
+@media (max-width: 600px) {
+  .review-card {
+    padding: 16px;
+    margin-bottom: 16px;
+
+    &__header {
+      gap: 10px;
+    }
+
+    &__avatar {
+      width: 40px;
+      height: 40px;
+    }
+
+    &__name {
+      font-size: 0.938rem;
+    }
+
+    &__comment {
+      font-size: 0.875rem;
+    }
+  }
+}
