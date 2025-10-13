@@ -1,7 +1,7 @@
 import { styled } from '@mui/material/styles'
 
 const FooterStyled = styled('footer')(({ theme }) => ({
-  backgroundColor: theme.palette.background.paper,
+  backgroundColor: theme.palette.background.default,
   padding: theme.spacing(2),
   borderWidth: '1px',
   borderStyle: 'solid',

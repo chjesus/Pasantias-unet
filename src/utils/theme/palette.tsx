@@ -8,6 +8,7 @@ export default function Palette() {
     palette: {
       ...paletteColor,
       action: { disabled: paletteColor.secondary.light },
+      background: { paper: '#EFF5FF', default: '#FFFFFF' },
     },
   })
 }

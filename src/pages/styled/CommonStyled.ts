@@ -25,6 +25,7 @@ export const CardStyled = styled(Card)(({ theme }) => ({
   paddingBottom: theme.spacing(4),
   paddingLeft: theme.spacing(7),
   paddingRight: theme.spacing(7),
+  backgroundColor: theme.palette.background.default,
   [theme.breakpoints.down('sm')]: {
     maxWidth: 325,
     paddingLeft: theme.spacing(2),
