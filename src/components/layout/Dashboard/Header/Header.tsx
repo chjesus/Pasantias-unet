@@ -103,6 +103,9 @@ function Header() {
             <Button component={Link} to="/contact" className={styles['header__nav-item']}>
               Contacto
             </Button>
+            <Button component={Link} to="/search" className={styles['header__nav-item']}>
+              Buscar
+            </Button>
         </nav>
 
         {/* Search */}

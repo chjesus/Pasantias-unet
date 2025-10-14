@@ -100,66 +100,100 @@ const ServiceDetailPage = () => {
       <div className={styles['service-detail']}>
         <Container maxWidth="lg">
           {/* Header */}
-          <Box className={styles['service-detail__header']}>
-            <Typography
-              component="h1"
-              className={styles['service-detail__title']}
-            >
-              {serviceData.title}
-            </Typography>
-      
-            <Typography
-              component="p"
-              className={styles['service-detail__description']}
-            >
-              {serviceData.description}
-            </Typography>
-      
-            <Box className={styles['service-detail__provider']}>
-              <Avatar
-                src={serviceData.provider.image}
-                alt={serviceData.provider.name}
-                className={styles['service-detail__provider-avatar']}
-              />
-              <Box className={styles['service-detail__provider-info']}>
-                <Typography className={styles['service-detail__provider-name']}>
-                  {serviceData.provider.name}
-                </Typography>
-                <Box className={styles['service-detail__provider-meta']}>
-                  <Rating
-                    value={serviceData.provider.rating}
-                    precision={0.1}
-                    readOnly
-                    size="small"
-                  />
-                  <Typography component="span">
-                    ({serviceData.provider.reviews} reseñas)
+          <Box className={styles['service-detail__header']} sx={{ 
+            display: 'flex', 
+            flexDirection: { xs: 'column', md: 'row' },
+            gap: { xs: 3, md: 4 }, 
+            alignItems: 'flex-start',
+            mb: 4 
+          }}>
+            {/* Contenido izquierdo - 60% desktop, 100% mobile */}
+            <Box sx={{ 
+              flex: { xs: '1 1 100%', md: '0 0 60%' }, 
+              pr: { xs: 0, md: 2 },
+              order: { xs: 2, md: 1 }
+            }}>
+              <Typography
+                component="h1"
+                className={styles['service-detail__title']}
+              >
+                {serviceData.title}
+              </Typography>
+        
+              <Typography
+                component="p"
+                className={styles['service-detail__description']}
+              >
+                {serviceData.description}
+              </Typography>
+        
+              <Box className={styles['service-detail__provider']}>
+                <Avatar
+                  src={serviceData.provider.image}
+                  alt={serviceData.provider.name}
+                  className={styles['service-detail__provider-avatar']}
+                />
+                <Box className={styles['service-detail__provider-info']}>
+                  <Typography className={styles['service-detail__provider-name']}>
+                    {serviceData.provider.name}
                   </Typography>
-                  <Typography component="span" sx={{ mx: 1 }}>•</Typography>
-                  <Typography component="span">
-                    12 años de experiencia
-                  </Typography>
+                  <Box className={styles['service-detail__provider-meta']}>
+                    <Box sx={{ 
+                      display: 'flex', 
+                      alignItems: 'center', 
+                      flexWrap: { xs: 'wrap', sm: 'nowrap' },
+                      gap: { xs: 0.5, sm: 1 }
+                    }}>
+                      <Rating
+                        value={serviceData.provider.rating}
+                        precision={0.1}
+                        readOnly
+                        size="small"
+                      />
+                      <Typography component="span">
+                        ({serviceData.provider.reviews} reseñas)
+                      </Typography>
+                      <Typography component="span" sx={{ 
+                        mx: { xs: 0, sm: 1 },
+                        display: { xs: 'none', sm: 'inline' }
+                      }}>•</Typography>
+                      <Typography component="span" sx={{
+                        width: { xs: '100%', sm: 'auto' },
+                        mt: { xs: 0.5, sm: 0 }
+                      }}>
+                        12 años de experiencia
+                      </Typography>
+                    </Box>
+                  </Box>
                 </Box>
               </Box>
             </Box>
-      
-            <Box className={styles['service-detail__actions']}>
-              <Button
-                variant="contained"
-                color="primary"
-                size="large"
-                className={styles['service-detail__button']}
-                endIcon={<ArrowForwardIcon />}
-              >
-                Contratar Servicio
-              </Button>
-              <Button
-                variant="outlined"
-                size="large"
-                className={styles['service-detail__button']}
-              >
-                Solicitar Presupuesto
-              </Button>
+
+            {/* Imagen derecha - 40% desktop, 100% mobile */}
+            <Box sx={{ 
+              flex: { xs: '1 1 100%', md: '0 0 40%' }, 
+              pl: { xs: 0, md: 2 },
+              order: { xs: 1, md: 2 }
+            }}>
+              <Box sx={{
+                width: '100%',
+                height: { xs: 250, md: 300 },
+                borderRadius: 2,
+                overflow: 'hidden',
+                boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+                position: 'relative'
+              }}>
+                <img
+                  src={serviceData.gallery[0] || '/api/placeholder/400/300'}
+                  alt={serviceData.title}
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                    objectFit: 'cover',
+                    display: 'block'
+                  }}
+                />
+              </Box>
             </Box>
           </Box>
 
