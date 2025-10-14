@@ -15,14 +15,20 @@ function Header() {
   const location = useLocation()
   const [searchText, setSearchText] = React.useState('')
   const debounceRef = React.useRef<NodeJS.Timeout | null>(null)
+  const isUpdatingFromURL = React.useRef(false)
 
   React.useEffect(() => {
+    isUpdatingFromURL.current = true
     if (location.pathname.startsWith('/search/')) {
       const searchTerm = decodeURIComponent(location.pathname.replace('/search/', ''))
       setSearchText(searchTerm)
     } else {
       setSearchText('')
     }
+    // Permitir que el próximo cambio sea considerado del usuario
+    setTimeout(() => {
+      isUpdatingFromURL.current = false
+    }, 0)
   }, [location.pathname])
 
   const handleSearch = React.useCallback((value: string) => {
@@ -33,19 +39,15 @@ function Header() {
     }
   }, [navigate])
 
-  // Debounce effect para búsqueda automática
+  // Debounce effect para búsqueda automática (solo cuando el usuario escribe)
   React.useEffect(() => {
     // Limpiar timeout anterior si existe
     if (debounceRef.current) {
       clearTimeout(debounceRef.current)
     }
 
-    // Solo hacer debounce si el texto ha cambiado y no estamos sincronizando desde la URL
-    const currentPath = location.pathname
-    const isFromUrlSync = currentPath.startsWith('/search/') && 
-                         searchText === decodeURIComponent(currentPath.replace('/search/', ''))
-
-    if (!isFromUrlSync) {
+    // Solo hacer debounce si no estamos actualizando desde la URL
+    if (!isUpdatingFromURL.current && searchText.trim().length > 0) {
       debounceRef.current = setTimeout(() => {
         handleSearch(searchText)
       }, 700)
@@ -57,7 +59,7 @@ function Header() {
         clearTimeout(debounceRef.current)
       }
     }
-  }, [searchText, location.pathname, handleSearch])
+  }, [searchText, handleSearch])
 
   const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
@@ -111,7 +113,10 @@ function Header() {
                 size="small"
                 fullWidth
                 value={searchText}
-                onChange={e => setSearchText(e.target.value)}
+                onChange={e => {
+                  isUpdatingFromURL.current = false
+                  setSearchText(e.target.value)
+                }}
                 onKeyPress={handleKeyPress}
                 InputProps={{
                   startAdornment: (
