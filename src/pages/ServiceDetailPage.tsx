@@ -37,6 +37,7 @@ const ServiceDetailPage = () => {
   const [visibleReviews, setVisibleReviews] = useState(3)
   const [selectedMaterials, setSelectedMaterials] = useState<Material[]>([])
   const [showAddedAlert, setShowAddedAlert] = useState(false)
+  const [isUrgentService, setIsUrgentService] = useState(false)
   const { addItem } = useCartStore()
   
   // Obtener datos del servicio por ID
@@ -74,14 +75,26 @@ const ServiceDetailPage = () => {
     setSelectedMaterials(materials)
   }
 
+  const calculateFinalPrice = () => {
+    const basePrice = serviceData?.pricing.price || 0
+    return isUrgentService ? basePrice * 1.35 : basePrice
+  }
+
+  const handleUrgentServiceChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setIsUrgentService(event.target.checked)
+  }
+
   const handleAddToCart = () => {
     const configuration = selectedMaterials.map(material => material.label)
+    if (isUrgentService) {
+      configuration.push('Servicio de Urgencia (+35%)')
+    }
     
     const cartItem = {
       id: serviceData.id,
       name: serviceData.title,
       quantity: 1,
-      price: serviceData.pricing.price,
+      price: calculateFinalPrice(),
       currency: serviceData.pricing.currency,
       providerName: serviceData.provider.name,
       image: serviceData.gallery[0] || '/api/placeholder/80/80',
@@ -309,7 +322,7 @@ const ServiceDetailPage = () => {
 
                 <Box className={styles['service-detail__pricing-main']}>
                   <Typography className={styles['service-detail__pricing-amount']}>
-                    {formattedPrice(serviceData.pricing.price)}
+                    {formattedPrice(calculateFinalPrice())}
                   </Typography>
                   <Typography className={styles['service-detail__pricing-currency']}>
                     {serviceData.pricing.currency}
@@ -318,6 +331,33 @@ const ServiceDetailPage = () => {
                     {serviceData.pricing.unit}
                   </Typography>
                 </Box>
+
+                {isUrgentService && (
+                  <Box sx={{ 
+                    mt: 1, 
+                    p: 1, 
+                    backgroundColor: 'warning.light', 
+                    borderRadius: 1,
+                    border: '1px solid',
+                    borderColor: 'warning.main'
+                  }}>
+                    <Typography variant="body2" sx={{ 
+                      color: 'warning.contrastText',
+                      fontWeight: 500,
+                      textAlign: 'center'
+                    }}>
+                      🚨 Servicio de urgencia: +35% ({formattedPrice(serviceData.pricing.price * 0.35)})
+                    </Typography>
+                    <Typography variant="caption" sx={{ 
+                      color: 'warning.contrastText',
+                      display: 'block',
+                      textAlign: 'center',
+                      mt: 0.5
+                    }}>
+                      Precio base: {formattedPrice(serviceData.pricing.price)}
+                    </Typography>
+                  </Box>
+                )}
 
                 <Typography className={styles['service-detail__pricing-original']}>
                   Precio original: {formattedPrice(serviceData.pricing.originalPrice)}
@@ -345,7 +385,8 @@ const ServiceDetailPage = () => {
                     Servicio de Urgencia
                   </Typography>
                   <Switch
-                    checked={serviceData.pricing.urgentService}
+                    checked={isUrgentService}
+                    onChange={handleUrgentServiceChange}
                     className={styles['service-detail__urgent-switch']}
                   />
                 </Box>
