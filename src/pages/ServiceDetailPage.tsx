@@ -25,34 +25,35 @@ import ReviewCard from '../components/ui/ReviewCard'
 import MetricCard from '../components/ui/MetricCard'
 import MaterialSelector from '../components/ui/MaterialSelector'
 import ServiceGallery from '../components/ui/ServiceGallery'
-import { getServiceById, type ServiceData } from '../assets/mockServiceData'
+import { getServiceById, type Service } from '../assets/unifiedServices'
 import { useCartStore } from '../store/cartStore'
 import type { Material } from '../components/ui/MaterialSelector/MaterialSelector'
+import { useParams } from 'react-router'
 import styles from './ServiceDetailPage.module.scss'
 import { formattedPrice } from '@/utils/formattedPrice'
 
-interface ServiceDetailPageProps {
-  serviceId?: string
-}
-
-const ServiceDetailPage = ({ serviceId = '1' }: ServiceDetailPageProps) => {
+const ServiceDetailPage = () => {
+  const { id: serviceId } = useParams<{ id: string }>()
   const [visibleReviews, setVisibleReviews] = useState(3)
   const [selectedMaterials, setSelectedMaterials] = useState<Material[]>([])
   const [showAddedAlert, setShowAddedAlert] = useState(false)
   const { addItem } = useCartStore()
   
   // Obtener datos del servicio por ID
-  const serviceData = getServiceById(serviceId)
+  const serviceData = serviceId ? getServiceById(serviceId) : null
   
-  // Si no se encuentra el servicio, mostrar página de error o redireccionar
-  if (!serviceData) {
+  // Si no se encuentra el servicio o no hay serviceId, mostrar página de error
+  if (!serviceId || !serviceData) {
     return (
       <Container maxWidth="lg" sx={{ py: 4, textAlign: 'center' }}>
         <Typography variant="h4" gutterBottom>
           Servicio no encontrado
         </Typography>
         <Typography variant="body1" color="text.secondary">
-          El servicio que buscas no existe o ha sido eliminado.
+          {!serviceId 
+            ? 'URL de servicio inválida.'
+            : 'El servicio que buscas no existe o ha sido eliminado.'
+          }
         </Typography>
         <Button 
           variant="contained" 
@@ -172,23 +173,19 @@ const ServiceDetailPage = ({ serviceId = '1' }: ServiceDetailPageProps) => {
                 Descripción del Servicio
               </Typography>
               
-              <Typography className={styles['service-detail__section-text']}>
-                En ClimaPro Solutions, somos especialistas en la instalación y mantenimiento de todo tipo de sistemas de
-                climatización, desde equipos residenciales hasta soluciones industriales. Nos comprometemos a ofrecer un servicio de
-                máxima calidad, garantizando la eficiencia energética y el confort en sus espacios.
-              </Typography>
-
-              <Typography className={styles['service-detail__section-text']}>
-                Nuestro equipo técnico está altamente cualificado y cuenta con las certificaciones más recientes del sector. Utilizamos
-                solo materiales de primera calidad y las últimas tecnologías para asegurar la durabilidad y el rendimiento óptimo de su
-                sistema.
-              </Typography>
-
-              <Typography className={styles['service-detail__section-text']}>
-                Ofrecemos soluciones personalizadas adaptadas a sus necesidades, incluyendo la instalación de sistemas split,
-                multisplit, conductos, aerotermia y suelo radiante. Realizamos diagnósticos precisos, reparaciones eficientes y
-                mantenimientos preventivos que prolongan la vida útil de sus equipos.
-              </Typography>
+              {/* Usar descripción detallada desde los datos unificados */}
+              {serviceData.detailedDescription && serviceData.detailedDescription.length > 0 ? (
+                serviceData.detailedDescription.map((paragraph: string, index: number) => (
+                  <Typography key={index} className={styles['service-detail__section-text']}>
+                    {paragraph}
+                  </Typography>
+                ))
+              ) : (
+                // Fallback a la descripción básica si no hay descripción detallada
+                <Typography className={styles['service-detail__section-text']}>
+                  {serviceData.description}
+                </Typography>
+              )}
             </div>
           </Box>
 
@@ -409,7 +406,7 @@ const ServiceDetailPage = ({ serviceId = '1' }: ServiceDetailPageProps) => {
               </Typography>
               
               <Box className={styles['service-detail__reviews']}>
-                {displayedReviews.map((review: ServiceData['reviews'][0], index: number) => (
+                {displayedReviews.map((review: Service['reviews'][0], index: number) => (
                   <ReviewCard
                     key={index}
                     userName={review.userName}

@@ -1,5 +1,5 @@
 import React from 'react'
-import { Link, useNavigate } from 'react-router'
+import { Link, useNavigate, useLocation } from 'react-router'
 import Button from '@mui/material/Button'
 import { Box, Container, IconButton, InputAdornment, TextField } from '@mui/material'
 import ClearIcon from '@mui/icons-material/Clear'
@@ -12,7 +12,63 @@ import styles from './Header.module.scss'
 function Header() {
   const { isAuthenticated, login, logout } = useAuthStore()
   const navigate = useNavigate()
+  const location = useLocation()
   const [searchText, setSearchText] = React.useState('')
+  const debounceRef = React.useRef<NodeJS.Timeout | null>(null)
+
+  React.useEffect(() => {
+    if (location.pathname.startsWith('/search/')) {
+      const searchTerm = decodeURIComponent(location.pathname.replace('/search/', ''))
+      setSearchText(searchTerm)
+    } else {
+      setSearchText('')
+    }
+  }, [location.pathname])
+
+  const handleSearch = React.useCallback((value: string) => {
+    if (value.trim().length > 0) {
+      navigate(`/search/${encodeURIComponent(value.trim())}`)
+    } else {
+      navigate('/search')
+    }
+  }, [navigate])
+
+  // Debounce effect para búsqueda automática
+  React.useEffect(() => {
+    // Limpiar timeout anterior si existe
+    if (debounceRef.current) {
+      clearTimeout(debounceRef.current)
+    }
+
+    // Solo hacer debounce si el texto ha cambiado y no estamos sincronizando desde la URL
+    const currentPath = location.pathname
+    const isFromUrlSync = currentPath.startsWith('/search/') && 
+                         searchText === decodeURIComponent(currentPath.replace('/search/', ''))
+
+    if (!isFromUrlSync) {
+      debounceRef.current = setTimeout(() => {
+        handleSearch(searchText)
+      }, 700)
+    }
+
+    // Cleanup del timeout al desmontar el componente
+    return () => {
+      if (debounceRef.current) {
+        clearTimeout(debounceRef.current)
+      }
+    }
+  }, [searchText, location.pathname, handleSearch])
+
+  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      e.preventDefault()
+      // Cancelar el debounce y buscar inmediatamente
+      if (debounceRef.current) {
+        clearTimeout(debounceRef.current)
+      }
+      handleSearch(searchText)
+    }
+  }
 
   const handleAuthClick = () => {
     if (isAuthenticated) {
@@ -55,18 +111,18 @@ function Header() {
                 size="small"
                 fullWidth
                 value={searchText}
-                onChange={e => {
-                  const value = e.target.value
-                  setSearchText(value)
-                  if (value.trim().length > 0) {
-                    navigate(`/search/${encodeURIComponent(value)}`)
-                  }
-                }}
-                onBlur={() => setSearchText('')}
+                onChange={e => setSearchText(e.target.value)}
+                onKeyPress={handleKeyPress}
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">
-                      <SearchIcon />
+                      <IconButton
+                        size="small"
+                        onClick={() => handleSearch(searchText)}
+                        edge="start"
+                      >
+                        <SearchIcon />
+                      </IconButton>
                     </InputAdornment>
                   ),
                   endAdornment: (
@@ -77,7 +133,7 @@ function Header() {
                           aria-label="Limpiar búsqueda"
                           onClick={() => {
                             setSearchText('')
-                            navigate('/search')
+                            handleSearch('')
                           }}
                           edge="end"
                         >
@@ -101,7 +157,7 @@ function Header() {
               </IconButton>
             )}
             <IconButton
-              onClick={() => navigate(isAuthenticated ? '/profile' : '/login')}
+              onClick={() => navigate(isAuthenticated ? '/profile' : '/auth/login')}
               className={styles['header__actions-profile']}
             >
               <PersonIcon />

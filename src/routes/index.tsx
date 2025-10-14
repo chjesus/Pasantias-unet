@@ -6,9 +6,9 @@ import authRoutes from '@/routes/authRoutes'
 
 
 const router = createBrowserRouter([
-  { path: '*', element: <div>ERROR 404</div> },
-  authRoutes,
   dashboardRoutes,
+  authRoutes,
+  { path: '*', element: <div>ERROR 404</div> },
 ])
 
 export default router

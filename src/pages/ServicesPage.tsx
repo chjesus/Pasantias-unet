@@ -5,7 +5,7 @@ import HandymanIcon from '@mui/icons-material/Handyman'
 import LockOpenIcon from '@mui/icons-material/LockOpen'
 import FeaturedService from '../components/ui/FeaturedServices/FeaturedService'
 import ServiceCard from '../components/ui/ServiceCard/ServiceCard'
-import { featuredServices, serviceCategories } from '../assets/mockData'
+import { UNIFIED_SERVICES } from '../assets/unifiedServices'
 import styles from './ServicesPage.module.scss'
 import { Fragment } from 'react/jsx-runtime'
 import { useNavigate } from 'react-router'
@@ -13,6 +13,31 @@ import { useNavigate } from 'react-router'
 
 const ServicesPage = () => {
   const navigate = useNavigate()
+
+  // Tomar los primeros 3 servicios como destacados
+  const featuredServices = UNIFIED_SERVICES.slice(0, 3)
+  
+  // Categorías disponibles
+  const availableCategories = ['Plomería', 'Electricidad', 'Carpintería', 'Seguridad']
+  
+  // Organizar servicios por categorías
+  const servicesByCategory = availableCategories.map(category => ({
+    id: category.toLowerCase().replace(/\s+/g, '-'),
+    title: category,
+    description: `Servicios profesionales de ${category.toLowerCase()}`,
+    icon: getCategoryIcon(category),
+    services: UNIFIED_SERVICES.filter(service => service.category === category).slice(0, 4) // máximo 4 por categoría
+  })).filter(category => category.services.length > 0) // solo categorías con servicios
+
+  function getCategoryIcon(category: string) {
+    switch (category) {
+      case 'Plomería': return <PlumbingIcon />
+      case 'Electricidad': return <ElectricalServicesIcon />
+      case 'Carpintería': return <HandymanIcon />
+      case 'Seguridad': return <LockOpenIcon />
+      default: return <HandymanIcon />
+    }
+  }
 
   const handleServiceClick = (serviceId: string) => {
     navigate(`/services/${serviceId}`)
@@ -62,7 +87,12 @@ const ServicesPage = () => {
             {featuredServices.map((service) => (
               <div key={service.id} className={styles['services__grid-item']}>
                 <FeaturedService
-                  {...service}
+                  id={service.id}
+                  title={service.title}
+                  description={service.description}
+                  image={service.image}
+                  price={service.pricing.price}
+                  originalPrice={service.pricing.originalPrice}
                   onClick={() => handleServiceClick(service.id)}
                 />
               </div>
@@ -70,7 +100,7 @@ const ServicesPage = () => {
           </div>
 
           {/* Service Categories */}
-          {serviceCategories.map((category) => (
+          {servicesByCategory.map((category) => (
             <section
               key={category.id}
               className={styles['services__category-section']}
@@ -85,10 +115,7 @@ const ServicesPage = () => {
                     component="span"
                     className={styles['services__category-icon']}
                   >
-                    {category.icon === 'plumbing' && <PlumbingIcon />}
-                    {category.icon === 'electric' && <ElectricalServicesIcon />}
-                    {category.icon === 'carpenter' && <HandymanIcon />}
-                    {category.icon === 'lock' && <LockOpenIcon />}
+                    {category.icon}
                   </Box>
                   {category.title}
                 </Typography>
@@ -101,7 +128,12 @@ const ServicesPage = () => {
                     className={styles['services__grid-item']}
                   >
                     <ServiceCard
-                      {...service}
+                      id={service.id}
+                      title={service.title}
+                      provider={service.provider.name}
+                      rating={service.rating}
+                      price={service.pricing.price}
+                      image={service.image}
                       onClick={() => handleServiceClick(service.id)}
                     />
                   </div>

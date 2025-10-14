@@ -1,46 +1,42 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { Container, Skeleton, Box } from '@mui/material'
 import { useNavigate, useParams } from 'react-router'
-import { MOCK_SERVICES } from '../assets/mocks/services.mock'
+import { UNIFIED_SERVICES } from '../assets/unifiedServices'
 import FilterCardService from '../components/ui/FilterCardService'
 import Filters from '../components/ui/Filters'
-import type { FiltersProps } from '../components/ui/Filters'
 import styles from './SearchDetailPage.module.scss'
 
-type FiltersState = Parameters<NonNullable<FiltersProps['onFiltersChange']>>[0]
 const SearchDetailPage = () => {
   const { text } = useParams<{ text: string }>()
   const navigate = useNavigate()
   const [isLoading, setIsLoading] = useState(true)
-  const [services, setServices] = useState(MOCK_SERVICES)
+  const [searchResults, setSearchResults] = useState(UNIFIED_SERVICES)
+  const [filteredServices, setFilteredServices] = useState(UNIFIED_SERVICES)
 
   useEffect(() => {
     setIsLoading(true)
-    const timer = setTimeout(() => {
-      const filteredServices =
-        text && text.trim().length > 0
-          ? MOCK_SERVICES.filter(
-              (service) =>
-                service.title.toLowerCase().includes(text.toLowerCase()) ||
-                service.description.toLowerCase().includes(text.toLowerCase())
-            )
-          : MOCK_SERVICES
-
-      setServices(filteredServices)
+    
+    const timeoutId = setTimeout(() => {
+      const results = UNIFIED_SERVICES.filter(service =>
+        service.title.toLowerCase().includes(text?.toLowerCase() || '')
+      )
+      
+      setSearchResults(results)
+      setFilteredServices(results)
       setIsLoading(false)
     }, 500)
 
-    return () => clearTimeout(timer)
+    return () => clearTimeout(timeoutId)
   }, [text])
+
   const handleViewDetails = (serviceId: string) => {
     console.log('Ver detalles:', serviceId)
     navigate(`/services/${serviceId}`)
   }
 
-  const handleFiltersChange = (filters: FiltersState) => {
-    console.log('Filtros actualizados:', filters)
-    // TODO: Implementar la lógica de filtrado
-  }
+  const handleFilteredResults = useCallback((filtered: typeof UNIFIED_SERVICES) => {
+    setFilteredServices(filtered)
+  }, [])
 
   const renderSkeletonCards = () => (
     <>
@@ -83,19 +79,28 @@ const SearchDetailPage = () => {
   return (
     <Container component="main" className={styles.search}>
       <div className={styles.search__content}>
-        <Filters onFiltersChange={handleFiltersChange} />
+        <Filters 
+          key={text || 'all'}
+          services={searchResults} 
+          onFilteredResults={handleFilteredResults} 
+        />
         <div className={styles.search__results}>
           <div className={styles.search__grid}>
             {isLoading
               ? renderSkeletonCards()
-              : services.map((service) => (
-                  <div key={service.id} className={styles.search__item}>
-                    <FilterCardService
-                      {...service}
-                      onViewDetails={() => handleViewDetails(service.id)}
-                    />
-                  </div>
-                ))}
+              : filteredServices.map((service) => (
+                <div key={service.id} className={styles.search__item}>
+                  <FilterCardService
+                    image={service.image}
+                    title={service.title}
+                    description={service.description}
+                    rating={service.rating}
+                    reviews={service.reviewCount}
+                    price={service.pricing.price}
+                    onViewDetails={() => handleViewDetails(service.id)}
+                  />
+                </div>
+              ))}
           </div>
         </div>
       </div>

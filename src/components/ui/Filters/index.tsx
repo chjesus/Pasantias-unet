@@ -4,6 +4,7 @@ import {
   AccordionSummary,
   Autocomplete,
   Box,
+  Button,
   Checkbox,
   FormControl,
   FormControlLabel,
@@ -18,24 +19,21 @@ import {
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import StarIcon from '@mui/icons-material/Star'
 import StarBorderIcon from '@mui/icons-material/StarBorder'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import styles from './Filters.module.scss'
 import { MOCK_LOCATIONS } from '@/assets/mocks/locations.mock'
+import { UNIFIED_SERVICES } from '../../../assets/unifiedServices'
 
-const CATEGORIES = [
-  'Hogar',
-  'Electricidad',
-  'Plomería',
-  'Carpintería',
-  'Pintura',
-  'Limpieza',
-  'Jardinería'
-]
+// Función para extraer categorías únicas de los servicios
+const getCategoriesFromServices = (services: typeof UNIFIED_SERVICES): string[] => {
+  const categories = services.map(service => service.category)
+  return [...new Set(categories)].sort()
+}
 
 const RATINGS = [
-  { value: '5.0', label: '5.0', stars: 5 },
+  { value: '5', label: '5', stars: 5 },
   { value: '4.5+', label: '4.5 o más', stars: 4.5 },
-  { value: '4.0+', label: '4.0 o más', stars: 4 },
+  { value: '4.0+', label: '4.0 o más', stars: 4.0 },
   { value: '3.5+', label: '3.5 o más', stars: 3.5 },
   { value: 'all', label: 'Todos', stars: 0 }
 ]
@@ -94,16 +92,70 @@ interface FiltersState {
 }
 
 export interface FiltersProps {
+  services: typeof UNIFIED_SERVICES
+  onFilteredResults?: (filteredServices: typeof UNIFIED_SERVICES) => void
   onFiltersChange?: (filters: FiltersState) => void
 }
 
-const Filters = ({ onFiltersChange }: FiltersProps) => {
+export type { FiltersState }
+
+const Filters = ({ services, onFilteredResults, onFiltersChange }: FiltersProps) => {
   const [filters, setFilters] = useState<FiltersState>({
-    priceRange: [0, 100000],
+    priceRange: [0, 1000000],
     categories: [],
     rating: 'all',
     location: null
   })
+
+  // Obtener categorías dinámicamente de los servicios
+  const availableCategories = getCategoriesFromServices(services)
+
+  // Función para formatear precio en moneda local
+  const formatPrice = (price: number): string => {
+    return new Intl.NumberFormat('es-CO', {
+      style: 'currency',
+      currency: 'COP',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(price)
+  }
+
+  // Función para aplicar filtros a los servicios
+  const applyFilters = (serviceList: typeof UNIFIED_SERVICES, filterCriteria: FiltersState) => {
+    return serviceList.filter(service => {
+      // Filtro por rango de precio
+      const priceInRange = service.pricing.price >= filterCriteria.priceRange[0] && 
+                          service.pricing.price <= filterCriteria.priceRange[1]
+
+      // Filtro por categorías (si hay categorías seleccionadas, debe coincidir con alguna)
+      const categoryMatch = filterCriteria.categories.length === 0 || 
+                           filterCriteria.categories.includes(service.category)
+
+      // Filtro por calificación
+      const ratingMatch = (() => {
+        if (filterCriteria.rating === 'all') return true
+        if (filterCriteria.rating === '5') return service.provider.rating === 5.0
+        if (filterCriteria.rating === '4.5+') return service.provider.rating >= 4.5
+        if (filterCriteria.rating === '4.0+') return service.provider.rating >= 4.0
+        if (filterCriteria.rating === '3.5+') return service.provider.rating >= 3.5
+        return true
+      })()
+
+      // Filtro por ubicación
+      const locationMatch = !filterCriteria.location || 
+                           (service.location && service.location.includes(filterCriteria.location))
+
+      // Combinar todos los filtros
+      return priceInRange && categoryMatch && ratingMatch && locationMatch
+    })
+  }
+
+  // Función para aplicar filtros y notificar cambios
+  const applyAndNotifyFilters = (newFilters: FiltersState) => {
+    const filteredResults = applyFilters(services, newFilters)
+    onFilteredResults?.(filteredResults)
+    onFiltersChange?.(newFilters)
+  }
 
   const handlePriceChange = (_event: Event, newValue: number | number[]) => {
     const newFilters = {
@@ -111,19 +163,21 @@ const Filters = ({ onFiltersChange }: FiltersProps) => {
       priceRange: newValue as number[]
     }
     setFilters(newFilters)
-    onFiltersChange?.(newFilters)
+    applyAndNotifyFilters(newFilters)
   }
 
-  const handleCategoryChange = (category: string) => {
-    const newCategories = filters.categories.includes(category)
-      ? filters.categories.filter((c: string) => c !== category)
-      : [...filters.categories, category]
+  const handleCategoryChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const { value, checked } = event.target
+    const newCategories = checked
+      ? [...filters.categories, value]
+      : filters.categories.filter(cat => cat !== value)
+
     const newFilters = {
       ...filters,
       categories: newCategories
     }
     setFilters(newFilters)
-    onFiltersChange?.(newFilters)
+    applyAndNotifyFilters(newFilters)
   }
 
   const handleRatingChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -132,16 +186,33 @@ const Filters = ({ onFiltersChange }: FiltersProps) => {
       rating: event.target.value
     }
     setFilters(newFilters)
-    onFiltersChange?.(newFilters)
+    applyAndNotifyFilters(newFilters)
   }
 
-  const handleLocationChange = (_event: any, newValue: string | null) => {
+  const handleLocationChange = (_event: React.SyntheticEvent, newValue: string | null) => {
     const newFilters = {
       ...filters,
       location: newValue
     }
     setFilters(newFilters)
-    onFiltersChange?.(newFilters)
+    applyAndNotifyFilters(newFilters)
+  }
+
+  // Aplicar filtros inicialmente cuando cambian los servicios
+  useEffect(() => {
+    const filteredResults = applyFilters(services, filters)
+    onFilteredResults?.(filteredResults)
+  }, [services, filters, onFilteredResults])
+
+  const handleResetFilters = () => {
+    const defaultFilters: FiltersState = {
+      priceRange: [0, 1000000],
+      categories: [],
+      rating: 'all',
+      location: null
+    }
+    setFilters(defaultFilters)
+    applyAndNotifyFilters(defaultFilters)
   }
 
   return (
@@ -184,21 +255,29 @@ const Filters = ({ onFiltersChange }: FiltersProps) => {
         </AccordionSummary>
         <AccordionDetails>
           <Box sx={{ px: 2, pt: 1 }}>
+            {/* Mostrar rango seleccionado formateado */}
+            <Box sx={{ mt: 2, textAlign: 'center', color: 'text.secondary' }}>
+              <Typography variant="caption">
+                Rango: {formatPrice(filters.priceRange[0])} - {formatPrice(filters.priceRange[1])}
+              </Typography>
+            </Box>
             <Slider
               value={filters.priceRange}
               onChange={handlePriceChange}
               valueLabelDisplay="auto"
+              valueLabelFormat={formatPrice}
               min={0}
-              max={100000}
-              step={5000}
+              max={1000000}
+              step={10000}
             />
-            <Box className={styles.filters__price}>
+            {/* <Box className={styles.filters__price}>
               <TextField
                 size="small"
                 type="number"
+                label="Precio mínimo"
                 value={filters.priceRange[0]}
                 onChange={(e) =>
-                  handlePriceChange(undefined as any, [
+                  handlePriceChange({} as Event, [
                     Number(e.target.value),
                     filters.priceRange[1]
                   ])
@@ -208,16 +287,19 @@ const Filters = ({ onFiltersChange }: FiltersProps) => {
               <TextField
                 size="small"
                 type="number"
+                label="Precio máximo"
                 value={filters.priceRange[1]}
                 onChange={(e) =>
-                  handlePriceChange(undefined as any, [
+                  handlePriceChange({} as Event, [
                     filters.priceRange[0],
                     Number(e.target.value)
                   ])
                 }
-                inputProps={{ min: filters.priceRange[0], max: 100000 }}
+                inputProps={{ min: filters.priceRange[0], max: 1000000 }}
               />
-            </Box>
+            </Box> */}
+            
+            
           </Box>
         </AccordionDetails>
       </Accordion>
@@ -231,13 +313,14 @@ const Filters = ({ onFiltersChange }: FiltersProps) => {
         </AccordionSummary>
         <AccordionDetails>
           <FormGroup>
-            {CATEGORIES.map((category) => (
+            {availableCategories.map((category) => (
               <FormControlLabel
                 key={category}
                 control={
                   <Checkbox
                     checked={filters.categories.includes(category)}
-                    onChange={() => handleCategoryChange(category)}
+                    onChange={handleCategoryChange}
+                    value={category}
                   />
                 }
                 label={category}
@@ -274,6 +357,24 @@ const Filters = ({ onFiltersChange }: FiltersProps) => {
           </FormControl>
         </AccordionDetails>
       </Accordion>
+
+      {/* Botón para resetear todos los filtros */}
+      <Box sx={{ mt: 3, px: 2, pb: 2 }}>
+        <Button
+          variant="outlined"
+          color="secondary"
+          fullWidth
+          onClick={handleResetFilters}
+          sx={{ 
+            borderStyle: 'dashed',
+            '&:hover': {
+              borderStyle: 'solid'
+            }
+          }}
+        >
+          Limpiar todos los filtros
+        </Button>
+      </Box>
     </Paper>
   )
 }

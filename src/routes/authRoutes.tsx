@@ -9,7 +9,7 @@ const RegisterPage = Loadable(lazy(() => import('@pages/Register')))
 const ForgotPasswordPage = Loadable(lazy(() => import('@pages/ForgotPassword')))
 
 const authRoutes = {
-  path: '/',
+  path: '/auth',
   element: <AuthLayout />,
   children: [
     { index: true, element: <Navigate to="login" replace /> },
