@@ -3,7 +3,7 @@ name: Deploy to S3
 on:
   push:
     branches:
-      - main  # Cambié a main que es la rama actual
+      - prod  # Cambié a main que es la rama actual
 
 jobs:
   deploy:
