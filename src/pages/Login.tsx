@@ -1,4 +1,5 @@
-import { Link } from 'react-router'
+import { useState } from 'react'
+import { Link, useNavigate } from 'react-router'
 import { useForm, Controller } from 'react-hook-form'
 
 import Grid from '@mui/material/Grid'
@@ -10,6 +11,7 @@ import LockIcon from '@mui/icons-material/Lock'
 import InfoIcon from '@mui/icons-material/Info'
 
 import InputMUI from '@/components/ui/Input/Input'
+import NotificationAlert from '@/components/ui/NotificationAlert'
 
 import { signIn } from '@/services/authService'
 import { PLACEHOLDER } from '@/utils/constant/placeholder'
@@ -21,18 +23,40 @@ import {
   ButtonLinkStyled,
 } from '@/pages/styled/CommonStyled'
 
+import type { AlertColor } from '@mui/material/Alert'
+
 type LoginFormData = { email: string; password: string }
 const defaultValues = { email: '', password: '' }
 
 function Login() {
+  const navigate = useNavigate();
+
+  const [message, setMessage] = useState<string>('')
+  const [loading, setLoading] = useState<boolean>(false)
+  const [openSnackbar, setOpenSnackbar] = useState<boolean>(false)
+  const [alertType, setAlertType] = useState<AlertColor>('success')
+
   const {
     handleSubmit,
     control,
     formState: { errors },
   } = useForm<LoginFormData>({ defaultValues, mode: 'onChange' })
 
-  const onSubmit = (data: LoginFormData) => {
-    signIn(data.email, data.password)
+  const handleCloseSnackbar = () => setOpenSnackbar(false)
+
+  const onSubmit = async (data: LoginFormData) => {
+    try {
+      const tokens = await signIn(data.email, data.password)
+      localStorage.setItem('token', tokens.accessToken)
+      navigate('/services')
+    } catch (error) {
+      console.error(error)
+      setAlertType('error')
+      setMessage('Email o contraseña incorrectos.')
+      setOpenSnackbar(true)
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -100,7 +124,12 @@ function Login() {
             </ButtonLinkStyled>
           </Grid>
           <Grid size={12}>
-            <Button type="submit" variant="contained" fullWidth>
+            <Button
+              type="submit"
+              loading={loading}
+              variant="contained"
+              fullWidth
+            >
               Iniciar Sesión
             </Button>
           </Grid>
@@ -125,6 +154,12 @@ function Login() {
           </Grid>
         </Grid>
       </CardStyled>
+      <NotificationAlert
+        message={message}
+        open={openSnackbar}
+        severity={alertType}
+        handleClose={handleCloseSnackbar}
+      />
     </BoxStyled>
   )
 }
