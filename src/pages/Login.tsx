@@ -11,6 +11,7 @@ import InfoIcon from '@mui/icons-material/Info'
 
 import InputMUI from '@/components/ui/Input/Input'
 
+import { signIn } from '@/services/authService'
 import { PLACEHOLDER } from '@/utils/constant/placeholder'
 import { RULES_EMAIL, MESSAGE_RULES_REQUIRED } from '@/utils/constant/rules'
 
@@ -31,7 +32,7 @@ function Login() {
   } = useForm<LoginFormData>({ defaultValues, mode: 'onChange' })
 
   const onSubmit = (data: LoginFormData) => {
-    console.log(data)
+    signIn(data.email, data.password)
   }
 
   return (

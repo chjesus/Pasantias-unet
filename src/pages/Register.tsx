@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { Link } from 'react-router'
 import { useForm, Controller } from 'react-hook-form'
 
@@ -11,7 +12,9 @@ import PersonIcon from '@mui/icons-material/Person'
 import SmartphoneIcon from '@mui/icons-material/Smartphone'
 
 import InputMUI from '@/components/ui/Input/Input'
+import NotificationAlert from '@/components/ui/NotificationAlert'
 
+import { signUp } from '@/services/authService'
 import { PLACEHOLDER } from '@/utils/constant/placeholder'
 import {
   RULES_EMAIL,
@@ -21,6 +24,7 @@ import {
 
 import { BoxStyled, CardStyled } from '@/pages/styled/CommonStyled'
 
+import type { AlertColor } from '@mui/material/Alert'
 type RegisterFormData = {
   fullName: string
   email: string
@@ -38,6 +42,15 @@ const defaultValues = {
 }
 
 function Register() {
+  const [message, setMessage] = useState<string>('')
+  const [loading, setLoading] = useState<boolean>(false)
+  const [openSnackbar, setOpenSnackbar] = useState<boolean>(false)
+  const [alertType, setAlertType] = useState<AlertColor>('success')
+  const [errorMessage, setErrorMessage] = useState<string | null>(null)
+
+
+  const handleCloseSnackbar = () => setOpenSnackbar(false)
+
   const {
     handleSubmit,
     control,
@@ -45,8 +58,22 @@ function Register() {
     formState: { errors },
   } = useForm<RegisterFormData>({ defaultValues, mode: 'onChange' })
 
-  const onSubmit = (data: RegisterFormData) => {
-    console.log(data)
+  const onSubmit = async (data: RegisterFormData) => {
+    setLoading(true)
+    setErrorMessage(null)
+    try {
+      await signUp(data)
+      setAlertType('success')
+      setMessage('¡Gracias por registrarte en nuestra plataforma!')
+      setOpenSnackbar(true)
+    } catch (error) {
+      console.error(error)
+      setAlertType('error')
+      setMessage('El usuario ya esta registrado!')
+      setOpenSnackbar(true)
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -166,7 +193,12 @@ function Register() {
           </Grid>
           <Grid size={12}></Grid>
           <Grid size={12}>
-            <Button type="submit" variant="contained" fullWidth>
+            <Button
+              type="submit"
+              loading={loading}
+              variant="contained"
+              fullWidth
+            >
               Registrarse
             </Button>
           </Grid>
@@ -177,6 +209,12 @@ function Register() {
           </Grid>
         </Grid>
       </CardStyled>
+      <NotificationAlert
+        message={message}
+        open={openSnackbar}
+        severity={alertType}
+        handleClose={handleCloseSnackbar}
+      />
     </BoxStyled>
   )
 }
