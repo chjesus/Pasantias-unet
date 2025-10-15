@@ -1,0 +1,161 @@
+.order-summary {
+  border-radius: 16px !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
+  height: fit-content;
+  position: sticky;
+  top: 2rem;
+
+  &__content {
+    padding: 1.5rem;
+  }
+
+  &__title {
+    font-weight: 600 !important;
+    margin-bottom: 1.5rem !important;
+    color: #1a1a1a;
+    font-size: 1.25rem !important;
+  }
+
+  &__row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+
+    &:last-of-type {
+      margin-bottom: 0;
+    }
+  }
+
+  &__amount {
+    font-weight: 500 !important;
+    color: #333;
+  }
+
+  &__divider {
+    margin: 1.5rem 0 !important;
+  }
+
+  &__total {
+    color: #1976d2 !important;
+    font-weight: 700 !important;
+  }
+
+  &__same-day-service {
+    background-color: #f8f9fa;
+    border-radius: 12px;
+    padding: 1rem;
+    margin: 1.5rem 0;
+  }
+
+  &__service-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+  }
+
+  &__calendar-icon {
+    color: #1976d2;
+    font-size: 1.25rem !important;
+  }
+
+  &__service-title {
+    font-weight: 600 !important;
+    color: #1a1a1a;
+  }
+
+  &__service-description {
+    color: #666 !important;
+    margin-bottom: 0.25rem !important;
+    font-size: 0.875rem !important;
+  }
+
+  &__service-cost {
+    color: #666 !important;
+    margin-bottom: 0.75rem !important;
+    font-size: 0.875rem !important;
+  }
+
+  &__switch {
+    &.Mui-checked {
+      color: #1976d2 !important;
+    }
+  }
+
+  &__switch-label {
+    margin: 0 !important;
+    
+    .MuiFormControlLabel-label {
+      font-weight: 500 !important;
+      color: #333;
+    }
+  }
+
+  &__checkout-btn {
+    background: linear-gradient(135deg, #1976d2 0%, #1565c0 100%) !important;
+    box-shadow: 0 4px 12px rgba(25, 118, 210, 0.3) !important;
+    font-weight: 600 !important;
+    font-size: 1rem !important;
+    padding: 0.75rem 1.5rem !important;
+    
+    &:hover {
+      background: linear-gradient(135deg, #1565c0 0%, #0d47a1 100%) !important;
+      box-shadow: 0 6px 16px rgba(25, 118, 210, 0.4) !important;
+    }
+
+    &:disabled {
+      background: #e0e0e0 !important;
+      box-shadow: none !important;
+      color: #999 !important;
+    }
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 768px) {
+  .order-summary {
+    position: static;
+    margin-top: 2rem;
+
+    &__content {
+      padding: 1rem;
+    }
+
+    &__title {
+      font-size: 1.125rem !important;
+      margin-bottom: 1rem !important;
+    }
+
+    &__same-day-service {
+      padding: 0.75rem;
+      margin: 1rem 0;
+    }
+
+    &__checkout-btn {
+      font-size: 0.9rem !important;
+      padding: 0.625rem 1.25rem !important;
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .order-summary {
+    &__content {
+      padding: 0.75rem;
+    }
+
+    &__row {
+      margin-bottom: 0.75rem;
+    }
+
+    &__same-day-service {
+      padding: 0.5rem;
+    }
+
+    &__service-description,
+    &__service-cost {
+      font-size: 0.8rem !important;
+    }
+  }
+}

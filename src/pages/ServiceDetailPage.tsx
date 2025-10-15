@@ -11,7 +11,9 @@ import {
   AccordionDetails,
   Switch,
   Card,
-  CardContent
+  CardContent,
+  Alert,
+  Snackbar
 } from '@mui/material'
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
@@ -23,29 +25,36 @@ import ReviewCard from '../components/ui/ReviewCard'
 import MetricCard from '../components/ui/MetricCard'
 import MaterialSelector from '../components/ui/MaterialSelector'
 import ServiceGallery from '../components/ui/ServiceGallery'
-import { getServiceById, type ServiceData } from '../assets/mockServiceData'
+import { getServiceById, type Service } from '../assets/unifiedServices'
+import { useCartStore } from '../store/cartStore'
+import type { Material } from '../components/ui/MaterialSelector/MaterialSelector'
+import { useParams } from 'react-router'
 import styles from './ServiceDetailPage.module.scss'
 import { formattedPrice } from '@/utils/formattedPrice'
 
-interface ServiceDetailPageProps {
-  serviceId?: string
-}
-
-const ServiceDetailPage = ({ serviceId = '1' }: ServiceDetailPageProps) => {
+const ServiceDetailPage = () => {
+  const { id: serviceId } = useParams<{ id: string }>()
   const [visibleReviews, setVisibleReviews] = useState(3)
+  const [selectedMaterials, setSelectedMaterials] = useState<Material[]>([])
+  const [showAddedAlert, setShowAddedAlert] = useState(false)
+  const [isUrgentService, setIsUrgentService] = useState(false)
+  const { addItem } = useCartStore()
   
   // Obtener datos del servicio por ID
-  const serviceData = getServiceById(serviceId)
+  const serviceData = serviceId ? getServiceById(serviceId) : null
   
-  // Si no se encuentra el servicio, mostrar página de error o redireccionar
-  if (!serviceData) {
+  // Si no se encuentra el servicio o no hay serviceId, mostrar página de error
+  if (!serviceId || !serviceData) {
     return (
       <Container maxWidth="lg" sx={{ py: 4, textAlign: 'center' }}>
         <Typography variant="h4" gutterBottom>
           Servicio no encontrado
         </Typography>
         <Typography variant="body1" color="text.secondary">
-          El servicio que buscas no existe o ha sido eliminado.
+          {!serviceId 
+            ? 'URL de servicio inválida.'
+            : 'El servicio que buscas no existe o ha sido eliminado.'
+          }
         </Typography>
         <Button 
           variant="contained" 
@@ -62,6 +71,40 @@ const ServiceDetailPage = ({ serviceId = '1' }: ServiceDetailPageProps) => {
     setVisibleReviews(prev => prev + 3)
   }
 
+  const handleMaterialSelection = (materials: Material[]) => {
+    setSelectedMaterials(materials)
+  }
+
+  const calculateFinalPrice = () => {
+    const basePrice = serviceData?.pricing.price || 0
+    return isUrgentService ? basePrice * 1.35 : basePrice
+  }
+
+  const handleUrgentServiceChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setIsUrgentService(event.target.checked)
+  }
+
+  const handleAddToCart = () => {
+    const configuration = selectedMaterials.map(material => material.label)
+    if (isUrgentService) {
+      configuration.push('Servicio de Urgencia (+35%)')
+    }
+    
+    const cartItem = {
+      id: serviceData.id,
+      name: serviceData.title,
+      quantity: 1,
+      price: calculateFinalPrice(),
+      currency: serviceData.pricing.currency,
+      providerName: serviceData.provider.name,
+      image: serviceData.gallery[0] || '/api/placeholder/80/80',
+      configuration
+    }
+
+    addItem(cartItem)
+    setShowAddedAlert(true)
+  }
+
   const displayedReviews = serviceData.reviews.slice(0, visibleReviews)
   const hasMoreReviews = visibleReviews < serviceData.reviews.length
 
@@ -70,66 +113,100 @@ const ServiceDetailPage = ({ serviceId = '1' }: ServiceDetailPageProps) => {
       <div className={styles['service-detail']}>
         <Container maxWidth="lg">
           {/* Header */}
-          <Box className={styles['service-detail__header']}>
-            <Typography
-              component="h1"
-              className={styles['service-detail__title']}
-            >
-              {serviceData.title}
-            </Typography>
-      
-            <Typography
-              component="p"
-              className={styles['service-detail__description']}
-            >
-              {serviceData.description}
-            </Typography>
-      
-            <Box className={styles['service-detail__provider']}>
-              <Avatar
-                src={serviceData.provider.image}
-                alt={serviceData.provider.name}
-                className={styles['service-detail__provider-avatar']}
-              />
-              <Box className={styles['service-detail__provider-info']}>
-                <Typography className={styles['service-detail__provider-name']}>
-                  {serviceData.provider.name}
-                </Typography>
-                <Box className={styles['service-detail__provider-meta']}>
-                  <Rating
-                    value={serviceData.provider.rating}
-                    precision={0.1}
-                    readOnly
-                    size="small"
-                  />
-                  <Typography component="span">
-                    ({serviceData.provider.reviews} reseñas)
+          <Box className={styles['service-detail__header']} sx={{ 
+            display: 'flex', 
+            flexDirection: { xs: 'column', md: 'row' },
+            gap: { xs: 3, md: 4 }, 
+            alignItems: 'flex-start',
+            mb: 4 
+          }}>
+            {/* Contenido izquierdo - 60% desktop, 100% mobile */}
+            <Box sx={{ 
+              flex: { xs: '1 1 100%', md: '0 0 60%' }, 
+              pr: { xs: 0, md: 2 },
+              order: { xs: 2, md: 1 }
+            }}>
+              <Typography
+                component="h1"
+                className={styles['service-detail__title']}
+              >
+                {serviceData.title}
+              </Typography>
+        
+              <Typography
+                component="p"
+                className={styles['service-detail__description']}
+              >
+                {serviceData.description}
+              </Typography>
+        
+              <Box className={styles['service-detail__provider']}>
+                <Avatar
+                  src={serviceData.provider.image}
+                  alt={serviceData.provider.name}
+                  className={styles['service-detail__provider-avatar']}
+                />
+                <Box className={styles['service-detail__provider-info']}>
+                  <Typography className={styles['service-detail__provider-name']}>
+                    {serviceData.provider.name}
                   </Typography>
-                  <Typography component="span" sx={{ mx: 1 }}>•</Typography>
-                  <Typography component="span">
-                    12 años de experiencia
-                  </Typography>
+                  <Box className={styles['service-detail__provider-meta']}>
+                    <Box sx={{ 
+                      display: 'flex', 
+                      alignItems: 'center', 
+                      flexWrap: { xs: 'wrap', sm: 'nowrap' },
+                      gap: { xs: 0.5, sm: 1 }
+                    }}>
+                      <Rating
+                        value={serviceData.provider.rating}
+                        precision={0.1}
+                        readOnly
+                        size="small"
+                      />
+                      <Typography component="span">
+                        ({serviceData.provider.reviews} reseñas)
+                      </Typography>
+                      <Typography component="span" sx={{ 
+                        mx: { xs: 0, sm: 1 },
+                        display: { xs: 'none', sm: 'inline' }
+                      }}>•</Typography>
+                      <Typography component="span" sx={{
+                        width: { xs: '100%', sm: 'auto' },
+                        mt: { xs: 0.5, sm: 0 }
+                      }}>
+                        12 años de experiencia
+                      </Typography>
+                    </Box>
+                  </Box>
                 </Box>
               </Box>
             </Box>
-      
-            <Box className={styles['service-detail__actions']}>
-              <Button
-                variant="contained"
-                color="primary"
-                size="large"
-                className={styles['service-detail__button']}
-                endIcon={<ArrowForwardIcon />}
-              >
-                Contratar Servicio
-              </Button>
-              <Button
-                variant="outlined"
-                size="large"
-                className={styles['service-detail__button']}
-              >
-                Solicitar Presupuesto
-              </Button>
+
+            {/* Imagen derecha - 40% desktop, 100% mobile */}
+            <Box sx={{ 
+              flex: { xs: '1 1 100%', md: '0 0 40%' }, 
+              pl: { xs: 0, md: 2 },
+              order: { xs: 1, md: 2 }
+            }}>
+              <Box sx={{
+                width: '100%',
+                height: { xs: 250, md: 300 },
+                borderRadius: 2,
+                overflow: 'hidden',
+                boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+                position: 'relative'
+              }}>
+                <img
+                  src={serviceData.gallery[0] || '/api/placeholder/400/300'}
+                  alt={serviceData.title}
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                    objectFit: 'cover',
+                    display: 'block'
+                  }}
+                />
+              </Box>
             </Box>
           </Box>
 
@@ -143,23 +220,19 @@ const ServiceDetailPage = ({ serviceId = '1' }: ServiceDetailPageProps) => {
                 Descripción del Servicio
               </Typography>
               
-              <Typography className={styles['service-detail__section-text']}>
-                En ClimaPro Solutions, somos especialistas en la instalación y mantenimiento de todo tipo de sistemas de
-                climatización, desde equipos residenciales hasta soluciones industriales. Nos comprometemos a ofrecer un servicio de
-                máxima calidad, garantizando la eficiencia energética y el confort en sus espacios.
-              </Typography>
-
-              <Typography className={styles['service-detail__section-text']}>
-                Nuestro equipo técnico está altamente cualificado y cuenta con las certificaciones más recientes del sector. Utilizamos
-                solo materiales de primera calidad y las últimas tecnologías para asegurar la durabilidad y el rendimiento óptimo de su
-                sistema.
-              </Typography>
-
-              <Typography className={styles['service-detail__section-text']}>
-                Ofrecemos soluciones personalizadas adaptadas a sus necesidades, incluyendo la instalación de sistemas split,
-                multisplit, conductos, aerotermia y suelo radiante. Realizamos diagnósticos precisos, reparaciones eficientes y
-                mantenimientos preventivos que prolongan la vida útil de sus equipos.
-              </Typography>
+              {/* Usar descripción detallada desde los datos unificados */}
+              {serviceData.detailedDescription && serviceData.detailedDescription.length > 0 ? (
+                serviceData.detailedDescription.map((paragraph: string, index: number) => (
+                  <Typography key={index} className={styles['service-detail__section-text']}>
+                    {paragraph}
+                  </Typography>
+                ))
+              ) : (
+                // Fallback a la descripción básica si no hay descripción detallada
+                <Typography className={styles['service-detail__section-text']}>
+                  {serviceData.description}
+                </Typography>
+              )}
             </div>
           </Box>
 
@@ -222,9 +295,7 @@ const ServiceDetailPage = ({ serviceId = '1' }: ServiceDetailPageProps) => {
                   availableMaterials={serviceData.materials}
                   title="Materiales del Servicio"
                   maxSelections={5}
-                  onSelectionChange={(selectedMaterials) => {
-                    console.log('Materiales seleccionados:', selectedMaterials)
-                  }}
+                  onSelectionChange={handleMaterialSelection}
                 />
                 
                 <Box className={styles['service-detail__duration-info']}>
@@ -251,7 +322,7 @@ const ServiceDetailPage = ({ serviceId = '1' }: ServiceDetailPageProps) => {
 
                 <Box className={styles['service-detail__pricing-main']}>
                   <Typography className={styles['service-detail__pricing-amount']}>
-                    {formattedPrice(serviceData.pricing.price)}
+                    {formattedPrice(calculateFinalPrice())}
                   </Typography>
                   <Typography className={styles['service-detail__pricing-currency']}>
                     {serviceData.pricing.currency}
@@ -260,6 +331,33 @@ const ServiceDetailPage = ({ serviceId = '1' }: ServiceDetailPageProps) => {
                     {serviceData.pricing.unit}
                   </Typography>
                 </Box>
+
+                {isUrgentService && (
+                  <Box sx={{ 
+                    mt: 1, 
+                    p: 1, 
+                    backgroundColor: 'warning.light', 
+                    borderRadius: 1,
+                    border: '1px solid',
+                    borderColor: 'warning.main'
+                  }}>
+                    <Typography variant="body2" sx={{ 
+                      color: 'warning.contrastText',
+                      fontWeight: 500,
+                      textAlign: 'center'
+                    }}>
+                      🚨 Servicio de urgencia: +35% ({formattedPrice(serviceData.pricing.price * 0.35)})
+                    </Typography>
+                    <Typography variant="caption" sx={{ 
+                      color: 'warning.contrastText',
+                      display: 'block',
+                      textAlign: 'center',
+                      mt: 0.5
+                    }}>
+                      Precio base: {formattedPrice(serviceData.pricing.price)}
+                    </Typography>
+                  </Box>
+                )}
 
                 <Typography className={styles['service-detail__pricing-original']}>
                   Precio original: {formattedPrice(serviceData.pricing.originalPrice)}
@@ -287,7 +385,8 @@ const ServiceDetailPage = ({ serviceId = '1' }: ServiceDetailPageProps) => {
                     Servicio de Urgencia
                   </Typography>
                   <Switch
-                    checked={serviceData.pricing.urgentService}
+                    checked={isUrgentService}
+                    onChange={handleUrgentServiceChange}
                     className={styles['service-detail__urgent-switch']}
                   />
                 </Box>
@@ -298,8 +397,9 @@ const ServiceDetailPage = ({ serviceId = '1' }: ServiceDetailPageProps) => {
                   fullWidth
                   className={styles['service-detail__add-service-button']}
                   sx={{ mt: 2 }}
+                  onClick={handleAddToCart}
                 >
-                  Agregar servicio
+                  Agregar al Carrito
                 </Button>
               </CardContent>
             </Card>
@@ -381,7 +481,7 @@ const ServiceDetailPage = ({ serviceId = '1' }: ServiceDetailPageProps) => {
               </Typography>
               
               <Box className={styles['service-detail__reviews']}>
-                {displayedReviews.map((review: ServiceData['reviews'][0], index: number) => (
+                {displayedReviews.map((review: Service['reviews'][0], index: number) => (
                   <ReviewCard
                     key={index}
                     userName={review.userName}
@@ -425,6 +525,22 @@ const ServiceDetailPage = ({ serviceId = '1' }: ServiceDetailPageProps) => {
           </Box>
         </Container>
       </div>
+
+      {/* Snackbar para mostrar mensaje de agregado al carrito */}
+      <Snackbar
+        open={showAddedAlert}
+        autoHideDuration={3000}
+        onClose={() => setShowAddedAlert(false)}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+      >
+        <Alert
+          onClose={() => setShowAddedAlert(false)}
+          severity="success"
+          variant="filled"
+        >
+          ¡Servicio agregado al carrito exitosamente!
+        </Alert>
+      </Snackbar>
     </>
   )
 }

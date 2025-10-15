@@ -9,7 +9,6 @@ interface FilterCardServiceProps {
   rating: number
   reviews: number
   price: number
-  onAddToCart?: () => void
   onViewDetails?: () => void
 }
 
@@ -20,7 +19,6 @@ const FilterCardService = ({
   rating,
   reviews,
   price,
-  onAddToCart,
   onViewDetails
 }: FilterCardServiceProps) => {
   const formattedPrice = new Intl.NumberFormat('es-CO', {
@@ -31,7 +29,7 @@ const FilterCardService = ({
   }).format(price)
 
   return (
-    <article className={styles['filter-card']}>
+    <article className={styles['filter-card']} onClick={onViewDetails}>
       <div className={styles['filter-card__image-container']}>
         <img 
           src={image} 
@@ -70,15 +68,6 @@ const FilterCardService = ({
         </div>
 
         <div className={styles['filter-card__actions']}>
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={onAddToCart}
-            className={styles['filter-card__button']}
-            fullWidth
-          >
-            Añadir al Carrito
-          </Button>
           <Button
             variant="outlined"
             color="primary"
