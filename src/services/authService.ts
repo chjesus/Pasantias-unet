@@ -14,6 +14,8 @@ type RegisterFormData = {
   confirmarPassword: string
 }
 
+type tokenType = { accessToken: string; idToken: string; refreshToken: string }
+
 export const signUp = (data: RegisterFormData) => {
   const { fullName, email, phone, password } = data
 
@@ -23,15 +25,13 @@ export const signUp = (data: RegisterFormData) => {
     new CognitoUserAttribute({ Name: 'phone_number', Value: phone }),
   ]
 
-  return new Promise((resolve, reject) => { 
+  return new Promise((resolve, reject) => {
     userPool.signUp(email, password, attributeList, [], (err, result) => {
       if (err) {
-        // console.error('Error during sign up:', err)
         reject(err)
         return
       }
       const cognitoUser = result?.user
-      // console.log('User name is ' + cognitoUser?.getUsername())
       resolve(cognitoUser?.getUsername())
     })
   })
@@ -45,21 +45,25 @@ export const signIn = (email: string, password: string) => {
 
   const cognitoUser = new CognitoUser({ Username: email, Pool: userPool })
 
-  cognitoUser.authenticateUser(authenticationDetails, {
-    onSuccess: (result) => {
-      console.log('Access token: ' + result.getAccessToken().getJwtToken())
-    },
-    onFailure: (err) => {
-      console.error('Error during sign in:', err)
-    },
+  return new Promise<tokenType>((resolve, reject) => {
+    cognitoUser.authenticateUser(authenticationDetails, {
+      onSuccess: (result) => {
+        const TOKEN = {
+          accessToken: result.getAccessToken().getJwtToken(),
+          idToken: result.getIdToken().getJwtToken(),
+          refreshToken: result.getRefreshToken().getToken(),
+        }
+        resolve(TOKEN)
+      },
+      onFailure: (err) => reject(err),
+    })
   })
 }
 
 export const signOut = () => {
   const cognitoUser = userPool.getCurrentUser()
-  if (cognitoUser) {
-    cognitoUser.signOut()
-  }
+
+  if (cognitoUser) cognitoUser.signOut()
 }
 
 export const getCurrentUser = () => {
