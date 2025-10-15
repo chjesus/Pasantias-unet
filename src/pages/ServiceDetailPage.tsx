@@ -15,7 +15,6 @@ import {
   Alert,
   Snackbar
 } from '@mui/material'
-import ArrowForwardIcon from '@mui/icons-material/ArrowForward'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney'
 import LocalOfferIcon from '@mui/icons-material/LocalOffer'

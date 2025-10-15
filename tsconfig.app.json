@@ -31,6 +31,6 @@
       // Agrega más alias si es necesario
     }
   },
-  "exclude": ["node_modules", "dist"],
+  "exclude": ["node_modules", "dist", "src/**/*.test.tsx", "src/**/*.test.ts"],
   "include": ["src"]
 }
