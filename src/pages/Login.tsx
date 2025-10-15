@@ -6,9 +6,9 @@ import Grid from '@mui/material/Grid'
 import Button from '@mui/material/Button'
 import Typography from '@mui/material/Typography'
 
-import EmailIcon from '@mui/icons-material/Email'
 import LockIcon from '@mui/icons-material/Lock'
 import InfoIcon from '@mui/icons-material/Info'
+import EmailIcon from '@mui/icons-material/Email'
 
 import InputMUI from '@/components/ui/Input/Input'
 import NotificationAlert from '@/components/ui/NotificationAlert'
@@ -48,7 +48,7 @@ function Login() {
     try {
       const tokens = await signIn(data.email, data.password)
       localStorage.setItem('token', tokens.accessToken)
-      navigate('/services')
+      navigate('/app/services')
     } catch (error) {
       console.error(error)
       setAlertType('error')

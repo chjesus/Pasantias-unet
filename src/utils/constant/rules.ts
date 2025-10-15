@@ -4,6 +4,7 @@ export const MESSAGE_RULES_REQUIRED = {
   PHONE: 'El número de teléfono es obligatorio.',
   PASSWORD: 'La contraseña es obligatoria.',
   CONFIRMPASSWORD: 'La confirmación de la contraseña es obligatoria.',
+  CODE: 'El código de verificación es obligatorio.',
 }
 
 export const RULES_EMAIL = {

@@ -14,6 +14,12 @@ type RegisterFormData = {
   confirmarPassword: string
 }
 
+type ConfirmForgotPassword = {
+  email: string
+  code: string
+  newPassword: string
+}
+
 type tokenType = { accessToken: string; idToken: string; refreshToken: string }
 
 export const signUp = (data: RegisterFormData) => {
@@ -56,6 +62,41 @@ export const signIn = (email: string, password: string) => {
         resolve(TOKEN)
       },
       onFailure: (err) => reject(err),
+    })
+  })
+}
+
+export const forgotPassword = (email: string) => {
+  const cognitoUser = new CognitoUser({ Username: email, Pool: userPool })
+
+  return new Promise((resolve, reject) => {
+    cognitoUser.forgotPassword({
+      onSuccess: () => {
+        resolve({
+          success: true,
+          message: 'Se ha enviado un código de verificación a tu email',
+        })
+      },
+      onFailure: (err) => {
+        reject(err)
+      },
+    })
+  })
+}
+
+export const confirmForgotPassword = (data: ConfirmForgotPassword) => {
+  const { email, code, newPassword } = data
+
+  const cognitoUser = new CognitoUser({ Username: email, Pool: userPool })
+
+  return new Promise((resolve, reject) => {
+    cognitoUser.confirmPassword(code, newPassword, {
+      onSuccess: () => {
+        resolve({ success: true, message: 'Contraseña restablecida con éxito' })
+      },
+      onFailure: (err) => {
+        reject(err)
+      },
     })
   })
 }
