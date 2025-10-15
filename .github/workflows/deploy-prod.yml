@@ -8,6 +8,10 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    env:
+      VITE_APP_COGNITO_USER_POOL_ID: ${{ secrets.VITE_APP_COGNITO_USER_POOL_ID }}
+      VITE_APP_COGNITO_CLIENT_ID: ${{ secrets.VITE_APP_COGNITO_CLIENT_ID }}
+      VITE_APP_COGNITO_REGION: ${{ secrets.VITE_APP_COGNITO_REGION }}
 
     steps:
       - name: Checkout repository
