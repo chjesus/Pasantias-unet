@@ -1,37 +1,36 @@
-name: Deploy to AWS S3 on prod
+name: Deploy to S3
 
 on:
   push:
     branches:
-      - prod
+      - prod  # o la rama desde la que harás el despliegue
 
 jobs:
-  build-and-deploy:
+  deploy:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up Node.js
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: 20
 
       - name: Install dependencies
-        run: pnpm install
+        run: npm ci
 
       - name: Build project
-        run: pnpm run build
-
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: us-east-1
+        run: npm run build
 
       - name: Deploy to S3
-        run: aws s3 sync ./dist s3://<TU_BUCKET_S3> --delete
-
-# Reemplaza <TU_BUCKET_S3> por el nombre de tu bucket S3.
-# Asegúrate de agregar los secretos AWS_ACCESS_KEY_ID y AWS_SECRET_ACCESS_KEY en la configuración de tu repositorio.
+        uses: jakejarvis/s3-sync-action@v0.5.1
+        with:
+          args: --delete
+        env:
+          AWS_S3_BUCKET: krixx-app
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: us-east-1   # cambia según tu región
+          SOURCE_DIR: ./dist       # carpeta con tus archivos de build
