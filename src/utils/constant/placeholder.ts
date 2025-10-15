@@ -4,4 +4,5 @@ export const PLACEHOLDER = {
   PHONE: 'Número de teléfono',
   PASSWORD: 'Contraseña',
   CONFIRM_PASSWORD: 'Confirmar contraseña',
+  CODE: 'Código de verificación',
 }
