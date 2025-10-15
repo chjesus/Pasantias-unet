@@ -25,6 +25,7 @@ import {
 import { BoxStyled, CardStyled } from '@/pages/styled/CommonStyled'
 
 import type { AlertColor } from '@mui/material/Alert'
+
 type RegisterFormData = {
   fullName: string
   email: string
@@ -46,7 +47,6 @@ function Register() {
   const [loading, setLoading] = useState<boolean>(false)
   const [openSnackbar, setOpenSnackbar] = useState<boolean>(false)
   const [alertType, setAlertType] = useState<AlertColor>('success')
-
 
   const handleCloseSnackbar = () => setOpenSnackbar(false)
 
