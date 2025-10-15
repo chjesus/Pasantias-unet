@@ -32,6 +32,20 @@ export default defineConfig(({ mode }) => {
       ],
     },
     plugins: [react()],
+    build: {
+      rollupOptions: {
+        output: {
+          manualChunks: {
+            vendor: ['react', 'react-dom'],
+            mui: ['@mui/material', '@mui/icons-material'],
+            router: ['react-router'],
+            utils: ['axios', 'zustand']
+          }
+        }
+      },
+      chunkSizeWarningLimit: 1000,
+      sourcemap: false
+    },
     test: {
       globals: true,
       environment: 'jsdom',
