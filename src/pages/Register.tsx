@@ -46,7 +46,6 @@ function Register() {
   const [loading, setLoading] = useState<boolean>(false)
   const [openSnackbar, setOpenSnackbar] = useState<boolean>(false)
   const [alertType, setAlertType] = useState<AlertColor>('success')
-  const [errorMessage, setErrorMessage] = useState<string | null>(null)
 
 
   const handleCloseSnackbar = () => setOpenSnackbar(false)
@@ -60,7 +59,6 @@ function Register() {
 
   const onSubmit = async (data: RegisterFormData) => {
     setLoading(true)
-    setErrorMessage(null)
     try {
       await signUp(data)
       setAlertType('success')
