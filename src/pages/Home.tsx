@@ -9,7 +9,7 @@ function Home() {
   const handleTest = () => {
     addItem({ 
       id: '1', 
-      name: 'Articulo de prueba', 
+      name: 'Articulo de prueba ', 
       quantity: 1,
       price: 150000,
       currency: 'COP',
