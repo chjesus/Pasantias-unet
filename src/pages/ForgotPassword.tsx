@@ -11,6 +11,7 @@ import EmailIcon from '@mui/icons-material/Email'
 import VpnKeyIcon from '@mui/icons-material/VpnKey'
 
 import InputMUI from '@/components/ui/Input/Input'
+import NotificationAlert from '@/components/ui/NotificationAlert'
 
 import { forgotPassword, confirmForgotPassword } from '@/services/authService'
 import { PLACEHOLDER } from '@/utils/constant/placeholder'
@@ -18,17 +19,23 @@ import { RULES_EMAIL, MESSAGE_RULES_REQUIRED } from '@/utils/constant/rules'
 
 import { BoxStyled, CardStyled } from '@/pages/styled/CommonStyled'
 
+import type { AlertColor } from '@mui/material/Alert'
 type LoginFormData = { email: string; code?: string; password?: string }
 const defaultValues = { email: '', code: '', password: '' }
 
 function ForgotPassword() {
+  const [message, setMessage] = useState<string>('')
   const [loading, setLoading] = useState<boolean>(false)
+  const [openSnackbar, setOpenSnackbar] = useState<boolean>(false)
+  const [alertType, setAlertType] = useState<AlertColor>('success')
   const [code, setCode] = useState<boolean>(false)
   const {
     handleSubmit,
     control,
     formState: { errors },
   } = useForm<LoginFormData>({ defaultValues, mode: 'onChange' })
+
+  const handleCloseSnackbar = () => setOpenSnackbar(false)
 
   const onSubmit = async (data: LoginFormData) => {
     setLoading(true)
@@ -39,9 +46,16 @@ function ForgotPassword() {
           code: data.code!,
           newPassword: data.password!,
         })
+        setAlertType('success')
+        setMessage('Se ha restablecido la contraseña con éxito.')
+        setOpenSnackbar(true)
+        setCode(false)
       } else {
         setCode(true)
         await forgotPassword(data.email)
+        setAlertType('info')
+        setMessage('Se ha enviado un código de verificación a su correo.')
+        setOpenSnackbar(true)
       }
     } catch (error) {
       console.error(error)
@@ -149,6 +163,12 @@ function ForgotPassword() {
           </Grid>
         </Grid>
       </CardStyled>
+      <NotificationAlert
+        message={message}
+        open={openSnackbar}
+        severity={alertType}
+        handleClose={handleCloseSnackbar}
+      />
     </BoxStyled>
   )
 }
