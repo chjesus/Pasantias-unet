@@ -6,9 +6,9 @@ import Grid from '@mui/material/Grid'
 import Button from '@mui/material/Button'
 import Typography from '@mui/material/Typography'
 
-import EmailIcon from '@mui/icons-material/Email'
 import LockIcon from '@mui/icons-material/Lock'
 import InfoIcon from '@mui/icons-material/Info'
+import EmailIcon from '@mui/icons-material/Email'
 
 import InputMUI from '@/components/ui/Input/Input'
 import NotificationAlert from '@/components/ui/NotificationAlert'
@@ -24,6 +24,7 @@ import {
 } from '@/pages/styled/CommonStyled'
 
 import type { AlertColor } from '@mui/material/Alert'
+import { routesDashboard } from '@/routes/dashboardRoutes'
 
 type LoginFormData = { email: string; password: string }
 const defaultValues = { email: '', password: '' }
@@ -48,7 +49,7 @@ function Login() {
     try {
       const tokens = await signIn(data.email, data.password)
       localStorage.setItem('token', tokens.accessToken)
-      navigate('/services')
+      navigate(routesDashboard.home);
     } catch (error) {
       console.error(error)
       setAlertType('error')

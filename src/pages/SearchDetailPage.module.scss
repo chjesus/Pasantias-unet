@@ -35,8 +35,15 @@
   }
 
   @media (max-width: 768px) {
+    padding: 16px 0;
+
     &__content {
       flex-direction: column;
+      gap: 0;
+    }
+
+    &__results {
+      padding-top: 8px;
     }
   }
 }
