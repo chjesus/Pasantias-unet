@@ -5,6 +5,7 @@ import { UNIFIED_SERVICES } from '../assets/unifiedServices'
 import FilterCardService from '../components/ui/FilterCardService'
 import Filters from '../components/ui/Filters'
 import styles from './SearchDetailPage.module.scss'
+import { routesDashboard } from '@/routes/dashboardRoutes'
 
 const SearchDetailPage = () => {
   const { text } = useParams<{ text: string }>()
@@ -53,8 +54,7 @@ const SearchDetailPage = () => {
   }, [text, sortServices, sortBy])
 
   const handleViewDetails = (serviceId: string) => {
-    console.log('Ver detalles:', serviceId)
-    navigate(`/services/${serviceId}`)
+    navigate(routesDashboard.serviceDetail(serviceId))
   }
 
   const handleFilteredResults = useCallback((filtered: typeof UNIFIED_SERVICES) => {
