@@ -43,11 +43,13 @@ export default defineConfig(({ mode }) => {
       react(),
       VitePWA({
         registerType: 'autoUpdate',
+        injectRegister: 'auto',
         includeAssets: ['favicon.svg', 'apple-touch-icon.svg', 'masked-icon.svg'],
         manifest: {
           name: 'Krix App - Servicios Online',
           short_name: 'Krix App',
           description: 'Plataforma de contratacion de servicios en linea.',
+          lang: 'es',
           theme_color: '#1976d2',
           background_color: '#ffffff',
           display: 'standalone',
@@ -58,18 +60,20 @@ export default defineConfig(({ mode }) => {
             {
               src: 'pwa-192x192.svg',
               sizes: '192x192',
-              type: 'image/svg+xml'
+              type: 'image/svg+xml',
+              purpose: 'any'
             },
             {
-              src: 'pwa-512x512.svg',
-              sizes: '512x512',
-              type: 'image/svg+xml'
-            },
-            {
-              src: 'pwa-512x512.svg',
+              src: 'pwa-512x512.svg', 
               sizes: '512x512',
               type: 'image/svg+xml',
-              purpose: 'any maskable'
+              purpose: 'any'
+            },
+            {
+              src: 'pwa-512x512.svg',
+              sizes: '512x512', 
+              type: 'image/svg+xml',
+              purpose: 'maskable'
             }
           ]
         },

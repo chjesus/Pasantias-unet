@@ -112,6 +112,17 @@ jobs:
             --cache-control "max-age=3600" \
             --content-type "application/manifest+json"
           
+          # Iconos SVG - Cache largo
+          aws s3 cp s3://krixx-app/pwa-192x192.svg s3://krixx-app/pwa-192x192.svg \
+            --metadata-directive REPLACE \
+            --cache-control "max-age=86400" \
+            --content-type "image/svg+xml"
+          
+          aws s3 cp s3://krixx-app/pwa-512x512.svg s3://krixx-app/pwa-512x512.svg \
+            --metadata-directive REPLACE \
+            --cache-control "max-age=86400" \
+            --content-type "image/svg+xml"
+          
           # HTML files - No cache
           aws s3 cp s3://krixx-app/index.html s3://krixx-app/index.html \
             --metadata-directive REPLACE \
