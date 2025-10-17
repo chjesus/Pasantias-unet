@@ -3,7 +3,7 @@ name: Deploy PWA to S3 + CloudFront
 on:
   push:
     branches:
-      - prod  # Deploya cuando se pushea a rama prod
+      - [prod, pwa-test-2]  # Deploya cuando se pushea a rama prod
 
 jobs:
   deploy:
