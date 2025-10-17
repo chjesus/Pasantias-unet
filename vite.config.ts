@@ -19,6 +19,13 @@ export default defineConfig(({ mode }) => {
       port: APP_PORT,
       host: APP_HOST,
       strictPort: APP_STRICT_PORT,
+      proxy: {
+        '/api': {
+          target: 'http://localhost:8080',
+          changeOrigin: true,
+          secure: false,
+        },
+      },
     },
     define: { global: APP_GLOBAL },
     resolve: {
@@ -39,17 +46,17 @@ export default defineConfig(({ mode }) => {
             vendor: ['react', 'react-dom'],
             mui: ['@mui/material', '@mui/icons-material'],
             router: ['react-router'],
-            utils: ['axios', 'zustand']
-          }
-        }
+            utils: ['axios', 'zustand'],
+          },
+        },
       },
       chunkSizeWarningLimit: 1000,
-      sourcemap: false
+      sourcemap: false,
     },
     test: {
       globals: true,
       environment: 'jsdom',
       setupFiles: ['./src/test/setup.ts'],
-    }
+    },
   }
 })
