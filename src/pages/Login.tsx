@@ -71,7 +71,7 @@ function Login() {
               component="h2"
               sx={{ textAlign: 'center' }}
             >
-              Iniciar Sesión en Krixx
+              Iniciar Sesión en Krix
             </Typography>
           </Grid>
           <Grid size={12}>
