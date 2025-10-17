@@ -43,7 +43,6 @@ export default defineConfig(({ mode }) => {
       react(),
       VitePWA({
         registerType: 'autoUpdate',
-        injectRegister: 'auto',
         includeAssets: ['favicon.svg', 'apple-touch-icon.svg', 'masked-icon.svg'],
         manifest: {
           name: 'Krix App - Servicios Online',
@@ -54,8 +53,9 @@ export default defineConfig(({ mode }) => {
           background_color: '#ffffff',
           display: 'standalone',
           scope: '/',
-          start_url: '/',
+          start_url: '/?utm_source=pwa',
           orientation: 'portrait',
+          categories: ['productivity', 'business'],
           icons: [
             {
               src: 'pwa-192x192.svg',
@@ -70,8 +70,8 @@ export default defineConfig(({ mode }) => {
               purpose: 'any'
             },
             {
-              src: 'pwa-512x512.svg',
-              sizes: '512x512', 
+              src: 'pwa-192x192.svg',
+              sizes: '192x192',
               type: 'image/svg+xml',
               purpose: 'maskable'
             }
@@ -115,7 +115,9 @@ export default defineConfig(({ mode }) => {
           navigateFallback: 'index.html',
           suppressWarnings: true,
           type: 'module',
-        }
+        },
+        // Configuración específica para el manifest
+        useCredentials: false,
       })
     ],
     build: {
