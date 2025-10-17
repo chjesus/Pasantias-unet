@@ -56,18 +56,34 @@ jobs:
         run: |
           echo "🔍 Verificando archivos PWA generados..."
           ls -la dist/
+          echo ""
+          
           if [ -f "dist/manifest.webmanifest" ]; then
-            echo "✅ Manifest encontrado"
+            echo "✅ Manifest encontrado:"
+            cat dist/manifest.webmanifest | head -c 200
+            echo "..."
           else
             echo "❌ Manifest no encontrado"
             exit 1
           fi
+          
           if [ -f "dist/sw.js" ]; then
-            echo "✅ Service Worker encontrado"
+            echo "✅ Service Worker encontrado ($(wc -l < dist/sw.js) líneas)"
           else
             echo "❌ Service Worker no encontrado"
             exit 1
           fi
+          
+          if [ -f "dist/registerSW.js" ]; then
+            echo "✅ Service Worker Register encontrado"
+          else
+            echo "⚠️ Service Worker Register no encontrado"
+          fi
+          
+          echo ""
+          echo "📊 Estadísticas del build:"
+          echo "Total archivos: $(find dist/ -type f | wc -l)"
+          echo "Tamaño total: $(du -sh dist/ | cut -f1)"
 
       - name: Deploy to S3
         uses: jakejarvis/s3-sync-action@v0.5.1
@@ -111,10 +127,17 @@ jobs:
       - name: Invalidate CloudFront cache
         run: |
           echo "🔄 Invalidando cache de CloudFront..."
-          aws cloudfront create-invalidation \
-            --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }} \
-            --paths "/*"
-          echo "✅ Cache de CloudFront invalidado"
+          
+          if [ -z "${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }}" ]; then
+            echo "⚠️ CLOUDFRONT_DISTRIBUTION_ID no configurado. Saltando invalidación."
+            echo "Para configurar: GitHub → Settings → Secrets → CLOUDFRONT_DISTRIBUTION_ID = d3usnihlicd9xb"
+          else
+            echo "Distribution ID: ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }}"
+            aws cloudfront create-invalidation \
+              --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }} \
+              --paths "/*"
+            echo "✅ Cache de CloudFront invalidado"
+          fi
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -133,3 +156,11 @@ jobs:
           echo "   1. Prueba rutas directas como /app/home"
           echo "   2. Verifica instalación PWA"
           echo "   3. Prueba funcionamiento offline"
+          echo ""
+          echo "⚙️ Configuración pendiente:"
+          if [ -z "${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }}" ]; then
+            echo "   - Configurar CLOUDFRONT_DISTRIBUTION_ID = d3usnihlicd9xb"
+          else
+            echo "   ✅ CloudFront configurado"
+          fi
+          echo "   - Error Pages en CloudFront (403/404 → /index.html)"
