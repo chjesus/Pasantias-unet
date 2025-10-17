@@ -76,6 +76,8 @@ export default defineConfig(({ mode }) => {
         workbox: {
           globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
           sourcemap: false,
+          navigateFallback: '/index.html',
+          navigateFallbackDenylist: [/^\/_/, /\/[^/?]+\.[^/]+$/],
           runtimeCaching: [
             {
               urlPattern: /^https:\/\/duub8e3vnc\.execute-api\.us-east-1\.amazonaws\.com\/.*/i,
