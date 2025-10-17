@@ -17,7 +17,7 @@ function FooterAuth() {
             component="p"
             textAlign={{ xs: 'center', sm: 'left' }}
           >
-            © 2024 Pasantías UNET. Todos los derechos reservados.
+            © 2024 Krix. Todos los derechos reservados.
           </Typography>
         </Grid>
         <Grid

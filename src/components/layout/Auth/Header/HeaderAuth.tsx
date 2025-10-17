@@ -15,7 +15,7 @@ function HeaderAuth() {
     <HeaderStyled>
       <Grid container sx={{ alignItems: 'center' }}>
         <Grid size="grow">
-          <Typography variant="h6">Krixx</Typography>
+          <Typography variant="h6">Krix</Typography>
         </Grid>
         {shouldShowButtons && (
           <Grid size="auto" sx={{ display: 'flex', gap: 1 }}>
