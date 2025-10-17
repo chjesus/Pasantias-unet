@@ -1,5 +1,5 @@
 import { PayPalScriptProvider, PayPalButtons } from '@paypal/react-paypal-js'
-import type { ReactPayPalScriptOptions } from '@paypal/paypal-js'
+import type { PayPalScriptOptions } from '@paypal/paypal-js'
 import {
   Box,
   Typography,
@@ -31,8 +31,8 @@ const OrderSummary = () => {
   // Configuración del servicio del mismo día
   const sameDayServiceCost = 250000
 
-  const initialOptions: ReactPayPalScriptOptions = {
-    'client-id': import.meta.env.VITE_APP_PAYPAL_CLIENT_ID,
+  const initialOptions: PayPalScriptOptions & Record<string, unknown> = {
+    clientId: import.meta.env.VITE_APP_PAYPAL_CLIENT_ID,
     'enable-funding': 'venmo',
     'buyer-country': 'US',
     currency: 'USD',
