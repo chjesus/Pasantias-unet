@@ -6,6 +6,7 @@ import FilterCardService from '../components/ui/FilterCardService'
 import Filters from '../components/ui/Filters'
 import styles from './SearchDetailPage.module.scss'
 import { routesDashboard } from '@/routes/dashboardRoutes'
+import { getAllApiServices } from '../services/apiService'
 
 const SearchDetailPage = () => {
   const { text } = useParams<{ text: string }>()
@@ -13,6 +14,8 @@ const SearchDetailPage = () => {
   const [isLoading, setIsLoading] = useState(true)
   const [searchResults, setSearchResults] = useState(UNIFIED_SERVICES)
   const [filteredServices, setFilteredServices] = useState(UNIFIED_SERVICES)
+  const [apiServices, setApiServices] = useState<typeof UNIFIED_SERVICES>([])
+  const [isLoadingApiServices, setIsLoadingApiServices] = useState(false)
   const [sortBy, setSortBy] = useState('relevance')
   const [visibleCount, setVisibleCount] = useState(9)
 
@@ -53,15 +56,63 @@ const SearchDetailPage = () => {
     return () => clearTimeout(timeoutId)
   }, [text, sortServices, sortBy])
 
+  // Efecto para cargar servicios del API cuando se entre a la vista /search
+  useEffect(() => {
+    const loadApiServices = async () => {
+      setIsLoadingApiServices(true)
+      try {
+        const servicesFromApi = await getAllApiServices()
+        setApiServices(servicesFromApi)
+        
+        // Si no hay texto de búsqueda específico, agregar servicios del API al final
+        if (!text || text.trim() === '') {
+          const combinedServices = [...UNIFIED_SERVICES, ...servicesFromApi]
+          const uniqueServices = combinedServices.filter((service, index, self) => 
+            index === self.findIndex(s => s.id === service.id)
+          )
+          setSearchResults(uniqueServices)
+          const sortedResults = sortServices(uniqueServices, sortBy)
+          setFilteredServices(sortedResults)
+        }
+      } catch (error) {
+        console.error('Error loading API services:', error)
+      } finally {
+        setIsLoadingApiServices(false)
+      }
+    }
+
+    loadApiServices()
+  }, [sortServices, sortBy, text])
+
   const handleViewDetails = (serviceId: string) => {
     navigate(routesDashboard.serviceDetail(serviceId))
   }
 
   const handleFilteredResults = useCallback((filtered: typeof UNIFIED_SERVICES) => {
-    const sortedFiltered = sortServices(filtered, sortBy)
+    // Combinar servicios filtrados con servicios del API si están disponibles
+    let combinedFiltered = filtered
+    if (apiServices.length > 0) {
+      // Filtrar servicios del API según el término de búsqueda si existe
+      const apiFiltered = text && text.trim() !== '' 
+        ? apiServices.filter(service =>
+            service.title.toLowerCase().includes(text.toLowerCase()) ||
+            service.description.toLowerCase().includes(text.toLowerCase()) ||
+            service.category.toLowerCase().includes(text.toLowerCase())
+          )
+        : apiServices
+      
+      combinedFiltered = [...filtered, ...apiFiltered]
+      
+      // Eliminar duplicados basados en ID
+      combinedFiltered = combinedFiltered.filter((service, index, self) => 
+        index === self.findIndex(s => s.id === service.id)
+      )
+    }
+    
+    const sortedFiltered = sortServices(combinedFiltered, sortBy)
     setFilteredServices(sortedFiltered)
     setVisibleCount(9) // Reiniciar contador cuando cambien los filtros
-  }, [sortServices, sortBy])
+  }, [sortServices, sortBy, apiServices, text])
 
   const handleLoadMore = () => {
     setVisibleCount(prev => prev + 6)
@@ -143,6 +194,14 @@ const SearchDetailPage = () => {
               </Typography>
               <Typography variant="body2" color="text.secondary">
                 {isLoading ? 'Buscando...' : `${filteredServices.length} resultado${filteredServices.length !== 1 ? 's' : ''} encontrado${filteredServices.length !== 1 ? 's' : ''}`}
+                {isLoadingApiServices && (
+                  <>
+                    <br />
+                    <span style={{ color: '#666', fontSize: '0.75rem' }}>
+                      ⏳ Cargando servicios adicionales...
+                    </span>
+                  </>
+                )}
               </Typography>
             </Box>
             

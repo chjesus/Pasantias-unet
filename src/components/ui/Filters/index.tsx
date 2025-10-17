@@ -6,6 +6,7 @@ import {
   Box,
   Button,
   Checkbox,
+  CircularProgress,
   Dialog,
   DialogActions,
   DialogContent,
@@ -33,6 +34,7 @@ import { useEffect, useState } from 'react'
 import styles from './Filters.module.scss'
 import { MOCK_LOCATIONS } from '@/assets/mocks/locations.mock'
 import { UNIFIED_SERVICES } from '../../../assets/unifiedServices'
+import { getServicesForCategories } from '../../../services/apiService'
 
 // Función para extraer categorías únicas de los servicios
 const getCategoriesFromServices = (services: typeof UNIFIED_SERVICES): string[] => {
@@ -113,6 +115,8 @@ const Filters = ({ services, onFilteredResults, onFiltersChange }: FiltersProps)
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down('md'))
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const [apiServices, setApiServices] = useState<typeof UNIFIED_SERVICES>([])
+  const [isLoadingApiServices, setIsLoadingApiServices] = useState(false)
   
   const [filters, setFilters] = useState<FiltersState>({
     priceRange: [0, 1000000],
@@ -180,7 +184,7 @@ const Filters = ({ services, onFilteredResults, onFiltersChange }: FiltersProps)
     applyAndNotifyFilters(newFilters)
   }
 
-  const handleCategoryChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleCategoryChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const { value, checked } = event.target
     const newCategories = checked
       ? [...filters.categories, value]
@@ -191,7 +195,37 @@ const Filters = ({ services, onFilteredResults, onFiltersChange }: FiltersProps)
       categories: newCategories
     }
     setFilters(newFilters)
-    applyAndNotifyFilters(newFilters)
+
+    // Si hay categorías seleccionadas, obtener servicios del API
+    if (newCategories.length > 0) {
+      setIsLoadingApiServices(true)
+      try {
+        const servicesFromApi = await getServicesForCategories(newCategories)
+        setApiServices(servicesFromApi)
+        
+        // Combinar servicios locales filtrados con servicios del API
+        const localFilteredServices = applyFilters(services, newFilters)
+        const combinedServices = [...localFilteredServices, ...servicesFromApi]
+        
+        // Eliminar duplicados basados en el ID
+        const uniqueServices = combinedServices.filter((service, index, self) => 
+          index === self.findIndex(s => s.id === service.id)
+        )
+        
+        onFilteredResults?.(uniqueServices)
+        onFiltersChange?.(newFilters)
+      } catch (error) {
+        console.error('Error loading API services:', error)
+        // Fallback: usar solo servicios locales
+        applyAndNotifyFilters(newFilters)
+      } finally {
+        setIsLoadingApiServices(false)
+      }
+    } else {
+      // Si no hay categorías seleccionadas, limpiar servicios del API y usar solo locales
+      setApiServices([])
+      applyAndNotifyFilters(newFilters)
+    }
   }
 
   const handleRatingChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -305,12 +339,36 @@ const Filters = ({ services, onFilteredResults, onFiltersChange }: FiltersProps)
                     checked={filters.categories.includes(category)}
                     onChange={handleCategoryChange}
                     value={category}
+                    disabled={isLoadingApiServices}
                   />
                 }
-                label={category}
+                label={
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    {category}
+                    {isLoadingApiServices && filters.categories.includes(category) && (
+                      <CircularProgress size={12} />
+                    )}
+                  </Box>
+                }
               />
             ))}
           </FormGroup>
+          {/* Indicator de servicios del API */}
+          {apiServices.length > 0 && (
+            <Box sx={{ mt: 2, p: 1, bgcolor: 'primary.50', borderRadius: 1 }}>
+              <Typography variant="caption" color="primary.main">
+                🌐 {apiServices.length} servicio(s) adicional(es) encontrado(s) del API
+              </Typography>
+            </Box>
+          )}
+          {isLoadingApiServices && (
+            <Box sx={{ mt: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
+              <CircularProgress size={16} />
+              <Typography variant="caption" color="text.secondary">
+                Buscando servicios adicionales...
+              </Typography>
+            </Box>
+          )}
         </AccordionDetails>
       </Accordion>
 
