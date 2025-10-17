@@ -1,7 +1,6 @@
 import { resolve } from 'path'
 import { defineConfig, loadEnv } from 'vite'
 import react from '@vitejs/plugin-react'
-import { VitePWA } from 'vite-plugin-pwa'
 
 // https://vite.dev/config/
 export default defineConfig(({ mode }) => {
@@ -39,79 +38,7 @@ export default defineConfig(({ mode }) => {
         { find: '@pages', replacement: resolve(__dirname, 'src/pages') },
       ],
     },
-    plugins: [
-      react(),
-      VitePWA({
-        registerType: 'autoUpdate',
-        includeAssets: ['favicon.svg', 'apple-touch-icon.svg', 'masked-icon.svg'],
-        manifest: {
-          name: 'Krix App - Servicios Online',
-          short_name: 'Krix App',
-          description: 'Plataforma de contratacion de servicios en linea.',
-          theme_color: '#1976d2',
-          background_color: '#ffffff',
-          display: 'standalone',
-          scope: '/',
-          start_url: '/',
-          orientation: 'portrait',
-          icons: [
-            {
-              src: 'pwa-192x192.svg',
-              sizes: '192x192',
-              type: 'image/svg+xml'
-            },
-            {
-              src: 'pwa-512x512.svg',
-              sizes: '512x512',
-              type: 'image/svg+xml'
-            },
-            {
-              src: 'pwa-512x512.svg',
-              sizes: '512x512',
-              type: 'image/svg+xml',
-              purpose: 'any maskable'
-            }
-          ]
-        },
-        workbox: {
-          globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
-          sourcemap: false,
-          runtimeCaching: [
-            {
-              urlPattern: /^https:\/\/duub8e3vnc\.execute-api\.us-east-1\.amazonaws\.com\/.*/i,
-              handler: 'NetworkFirst',
-              options: {
-                cacheName: 'api-cache',
-                expiration: {
-                  maxEntries: 100,
-                  maxAgeSeconds: 60 * 60 * 24, // 24 horas
-                },
-                cacheableResponse: {
-                  statuses: [0, 200],
-                },
-              },
-            },
-            {
-              urlPattern: /\.(png|jpg|jpeg|svg|gif|webp)$/,
-              handler: 'CacheFirst',
-              options: {
-                cacheName: 'images-cache',
-                expiration: {
-                  maxEntries: 60,
-                  maxAgeSeconds: 60 * 60 * 24 * 30, // 30 días
-                },
-              },
-            },
-          ]
-        },
-        devOptions: {
-          enabled: true,
-          navigateFallback: 'index.html',
-          suppressWarnings: true,
-          type: 'module',
-        }
-      })
-    ],
+    plugins: [react()],
     build: {
       rollupOptions: {
         output: {
