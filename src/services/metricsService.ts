@@ -10,7 +10,7 @@ class MetricsService {
   
   // 🚩 FLAG PARA HABILITAR/DESHABILITAR MÉTRICAS
   // Cambiar a false para deshabilitar completamente las métricas
-  private readonly METRICS_ENABLED: boolean = true;
+  private readonly METRICS_ENABLED: boolean = false;
 
   constructor() {
       this.apiUrl = 'https://pq7cyoqls5.execute-api.us-east-1.amazonaws.com/prod-metric-krix/metrics';
