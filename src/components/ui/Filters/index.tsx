@@ -6,23 +6,35 @@ import {
   Box,
   Button,
   Checkbox,
+  CircularProgress,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  Fab,
   FormControl,
   FormControlLabel,
   FormGroup,
+  IconButton,
   Paper,
   Radio,
   RadioGroup,
   Slider,
   TextField,
-  Typography
+  Typography,
+  useMediaQuery,
+  useTheme
 } from '@mui/material'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import StarIcon from '@mui/icons-material/Star'
 import StarBorderIcon from '@mui/icons-material/StarBorder'
+import FilterListIcon from '@mui/icons-material/FilterList'
+import CloseIcon from '@mui/icons-material/Close'
 import { useEffect, useState } from 'react'
 import styles from './Filters.module.scss'
 import { MOCK_LOCATIONS } from '@/assets/mocks/locations.mock'
 import { UNIFIED_SERVICES } from '../../../assets/unifiedServices'
+import { getServicesForCategories } from '../../../services/apiService'
 
 // Función para extraer categorías únicas de los servicios
 const getCategoriesFromServices = (services: typeof UNIFIED_SERVICES): string[] => {
@@ -100,6 +112,12 @@ export interface FiltersProps {
 export type { FiltersState }
 
 const Filters = ({ services, onFilteredResults, onFiltersChange }: FiltersProps) => {
+  const theme = useTheme()
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'))
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [apiServices, setApiServices] = useState<typeof UNIFIED_SERVICES>([])
+  const [isLoadingApiServices, setIsLoadingApiServices] = useState(false)
+  
   const [filters, setFilters] = useState<FiltersState>({
     priceRange: [0, 1000000],
     categories: [],
@@ -166,7 +184,7 @@ const Filters = ({ services, onFilteredResults, onFiltersChange }: FiltersProps)
     applyAndNotifyFilters(newFilters)
   }
 
-  const handleCategoryChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleCategoryChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const { value, checked } = event.target
     const newCategories = checked
       ? [...filters.categories, value]
@@ -177,7 +195,37 @@ const Filters = ({ services, onFilteredResults, onFiltersChange }: FiltersProps)
       categories: newCategories
     }
     setFilters(newFilters)
-    applyAndNotifyFilters(newFilters)
+
+    // Si hay categorías seleccionadas, obtener servicios del API
+    if (newCategories.length > 0) {
+      setIsLoadingApiServices(true)
+      try {
+        const servicesFromApi = await getServicesForCategories(newCategories)
+        setApiServices(servicesFromApi)
+        
+        // Combinar servicios locales filtrados con servicios del API
+        const localFilteredServices = applyFilters(services, newFilters)
+        const combinedServices = [...localFilteredServices, ...servicesFromApi]
+        
+        // Eliminar duplicados basados en el ID
+        const uniqueServices = combinedServices.filter((service, index, self) => 
+          index === self.findIndex(s => s.id === service.id)
+        )
+        
+        onFilteredResults?.(uniqueServices)
+        onFiltersChange?.(newFilters)
+      } catch (error) {
+        console.error('Error loading API services:', error)
+        // Fallback: usar solo servicios locales
+        applyAndNotifyFilters(newFilters)
+      } finally {
+        setIsLoadingApiServices(false)
+      }
+    } else {
+      // Si no hay categorías seleccionadas, limpiar servicios del API y usar solo locales
+      setApiServices([])
+      applyAndNotifyFilters(newFilters)
+    }
   }
 
   const handleRatingChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -215,13 +263,14 @@ const Filters = ({ services, onFilteredResults, onFiltersChange }: FiltersProps)
     applyAndNotifyFilters(defaultFilters)
   }
 
-  return (
-    <Paper className={styles.filters}>
+  // Contenido de los filtros
+  const FiltersContent = () => (
+    <>
       <Typography variant="h6" className={styles.filters__title}>
         Filtros
       </Typography>
 
-      <Accordion defaultExpanded>
+      <Accordion defaultExpanded={!isMobile}>
         <AccordionSummary
           expandIcon={<ExpandMoreIcon />}
           className={styles.filters__summary}
@@ -244,7 +293,7 @@ const Filters = ({ services, onFilteredResults, onFiltersChange }: FiltersProps)
         </AccordionDetails>
       </Accordion>
 
-      <Accordion defaultExpanded>
+      <Accordion defaultExpanded={!isMobile}>
         <AccordionSummary
           expandIcon={<ExpandMoreIcon />}
           className={styles.filters__summary}
@@ -255,7 +304,6 @@ const Filters = ({ services, onFilteredResults, onFiltersChange }: FiltersProps)
         </AccordionSummary>
         <AccordionDetails>
           <Box sx={{ px: 2, pt: 1 }}>
-            {/* Mostrar rango seleccionado formateado */}
             <Box sx={{ mt: 2, textAlign: 'center', color: 'text.secondary' }}>
               <Typography variant="caption">
                 Rango: {formatPrice(filters.priceRange[0])} - {formatPrice(filters.priceRange[1])}
@@ -270,41 +318,11 @@ const Filters = ({ services, onFilteredResults, onFiltersChange }: FiltersProps)
               max={1000000}
               step={10000}
             />
-            {/* <Box className={styles.filters__price}>
-              <TextField
-                size="small"
-                type="number"
-                label="Precio mínimo"
-                value={filters.priceRange[0]}
-                onChange={(e) =>
-                  handlePriceChange({} as Event, [
-                    Number(e.target.value),
-                    filters.priceRange[1]
-                  ])
-                }
-                inputProps={{ min: 0, max: filters.priceRange[1] }}
-              />
-              <TextField
-                size="small"
-                type="number"
-                label="Precio máximo"
-                value={filters.priceRange[1]}
-                onChange={(e) =>
-                  handlePriceChange({} as Event, [
-                    filters.priceRange[0],
-                    Number(e.target.value)
-                  ])
-                }
-                inputProps={{ min: filters.priceRange[0], max: 1000000 }}
-              />
-            </Box> */}
-            
-            
           </Box>
         </AccordionDetails>
       </Accordion>
 
-      <Accordion defaultExpanded>
+      <Accordion defaultExpanded={!isMobile}>
         <AccordionSummary
           expandIcon={<ExpandMoreIcon />}
           className={styles.filters__summary}
@@ -321,16 +339,40 @@ const Filters = ({ services, onFilteredResults, onFiltersChange }: FiltersProps)
                     checked={filters.categories.includes(category)}
                     onChange={handleCategoryChange}
                     value={category}
+                    disabled={isLoadingApiServices}
                   />
                 }
-                label={category}
+                label={
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    {category}
+                    {isLoadingApiServices && filters.categories.includes(category) && (
+                      <CircularProgress size={12} />
+                    )}
+                  </Box>
+                }
               />
             ))}
           </FormGroup>
+          {/* Indicator de servicios del API */}
+          {apiServices.length > 0 && (
+            <Box sx={{ mt: 2, p: 1, bgcolor: 'primary.50', borderRadius: 1 }}>
+              <Typography variant="caption" color="primary.main">
+                🌐 {apiServices.length} servicio(s) adicional(es) encontrado(s) del API
+              </Typography>
+            </Box>
+          )}
+          {isLoadingApiServices && (
+            <Box sx={{ mt: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
+              <CircularProgress size={16} />
+              <Typography variant="caption" color="text.secondary">
+                Buscando servicios adicionales...
+              </Typography>
+            </Box>
+          )}
         </AccordionDetails>
       </Accordion>
 
-      <Accordion defaultExpanded>
+      <Accordion defaultExpanded={!isMobile}>
         <AccordionSummary
           expandIcon={<ExpandMoreIcon />}
           className={styles.filters__summary}
@@ -358,23 +400,159 @@ const Filters = ({ services, onFilteredResults, onFiltersChange }: FiltersProps)
         </AccordionDetails>
       </Accordion>
 
-      {/* Botón para resetear todos los filtros */}
-      <Box sx={{ mt: 3, px: 2, pb: 2 }}>
-        <Button
-          variant="outlined"
-          color="secondary"
-          fullWidth
-          onClick={handleResetFilters}
-          sx={{ 
-            borderStyle: 'dashed',
+      {/* Botón limpiar filtros solo en desktop */}
+      {!isMobile && (
+        <Box sx={{ mt: 3, px: 2, pb: 2 }}>
+          <Button
+            variant="outlined"
+            color="secondary"
+            fullWidth
+            onClick={handleResetFilters}
+            sx={{ 
+              borderStyle: 'dashed',
+              '&:hover': {
+                borderStyle: 'solid'
+              }
+            }}
+          >
+            Limpiar todos los filtros
+          </Button>
+        </Box>
+      )}
+    </>
+  )
+
+  // Render condicional para mobile vs desktop
+  if (isMobile) {
+    return (
+      <>
+        {/* Botón flotante para mobile */}
+        <Fab
+          color="primary"
+          aria-label="filtros"
+          className={styles.filters__fab}
+          onClick={() => setIsModalOpen(true)}
+          sx={{
+            position: 'fixed',
+            bottom: 20,
+            right: 20,
+            zIndex: 1000,
+            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
             '&:hover': {
-              borderStyle: 'solid'
+              transform: 'scale(1.05)',
+              transition: 'transform 0.2s ease-in-out'
             }
           }}
         >
-          Limpiar todos los filtros
-        </Button>
-      </Box>
+          <FilterListIcon />
+        </Fab>
+
+        {/* Modal/Dialog para mobile */}
+        <Dialog
+          open={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          fullScreen
+          PaperProps={{
+            sx: {
+              bgcolor: 'background.default',
+            }
+          }}
+        >
+          <DialogTitle
+            sx={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              backgroundColor: 'primary.main',
+              color: 'white',
+              py: 2
+            }}
+          >
+            <Typography variant="h6" component="div" sx={{ fontWeight: 600 }}>
+              Filtros de Búsqueda
+            </Typography>
+            <IconButton
+              onClick={() => setIsModalOpen(false)}
+              sx={{ color: 'white' }}
+            >
+              <CloseIcon />
+            </IconButton>
+          </DialogTitle>
+          <DialogContent sx={{ p: 0, width: '100%' }}>
+            <Paper className={styles.filters} elevation={0} sx={{ width: '100%', maxWidth: 'none' }}>
+              <FiltersContent />
+            </Paper>
+          </DialogContent>
+          <DialogActions 
+            sx={{ 
+              p: 2, 
+              backgroundColor: 'grey.50',
+              borderTop: '1px solid',
+              borderColor: 'divider',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 1.5,
+              alignItems: 'stretch'
+            }}
+          >
+            <Button
+              variant="outlined"
+              color="secondary"
+              onClick={() => {
+                handleResetFilters()
+                setIsModalOpen(false)
+              }}
+              sx={{ 
+                width: '100%',
+                py: 1.5,
+                borderRadius: '8px',
+                textTransform: 'none',
+                fontSize: '0.95rem',
+                borderStyle: 'dashed',
+                '&:hover': {
+                  borderStyle: 'solid'
+                }
+              }}
+            >
+              Limpiar todos los filtros
+            </Button>
+            <Button
+              variant="outlined"
+              color="secondary"
+              onClick={() => setIsModalOpen(false)}
+              sx={{ 
+                width: '100%',
+                py: 1.5,
+                borderRadius: '8px',
+                fontSize: '0.95rem'
+              }}
+            >
+              Cancelar
+            </Button>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={() => setIsModalOpen(false)}
+              sx={{ 
+                width: '100%',
+                py: 1.5,
+                borderRadius: '8px',
+                fontWeight: 600,
+                fontSize: '0.95rem'
+              }}
+            >
+              Aplicar Filtros
+            </Button>
+          </DialogActions>
+        </Dialog>
+      </>
+    )
+  }
+
+  // Render para desktop (comportamiento original)
+  return (
+    <Paper className={styles.filters}>
+      <FiltersContent />
     </Paper>
   )
 }

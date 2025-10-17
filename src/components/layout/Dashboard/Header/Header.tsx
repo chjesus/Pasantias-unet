@@ -8,6 +8,7 @@ import ShoppingCartIcon from '@mui/icons-material/ShoppingCart'
 import PersonIcon from '@mui/icons-material/Person'
 import { useAuthStore } from '../../../../store/authStore'
 import styles from './Header.module.scss'
+import { routesDashboard } from '@/routes/dashboardRoutes'
 
 function Header() {
   const { isAuthenticated, login, logout } = useAuthStore()
@@ -19,10 +20,15 @@ function Header() {
 
   React.useEffect(() => {
     isUpdatingFromURL.current = true
-    if (location.pathname.startsWith('/search/')) {
-      const searchTerm = decodeURIComponent(location.pathname.replace('/search/', ''))
+    if (location.pathname.startsWith(routesDashboard.search + '/')) {
+      // Extraer el término de búsqueda de la URL /search/termino
+      const searchTerm = decodeURIComponent(location.pathname.replace(routesDashboard.search + '/', ''))
       setSearchText(searchTerm)
+    } else if (location.pathname === routesDashboard.search) {
+      // Estamos en la página de búsqueda sin término
+      setSearchText('')
     } else {
+      // Estamos en otra página
       setSearchText('')
     }
     // Permitir que el próximo cambio sea considerado del usuario
@@ -33,9 +39,12 @@ function Header() {
 
   const handleSearch = React.useCallback((value: string) => {
     if (value.trim().length > 0) {
-      navigate(`/search/${encodeURIComponent(value.trim())}`)
+      const searchUrl = routesDashboard.searchText(value.trim())
+      console.log('Navegando a:', searchUrl)
+      navigate(searchUrl)
     } else {
-      navigate('/search')
+      console.log('Navegando a búsqueda vacía:', routesDashboard.search)
+      navigate(routesDashboard.search)
     }
   }, [navigate])
 
@@ -88,23 +97,14 @@ function Header() {
     <header className={styles.header}>
       <Container maxWidth={false} className={styles.header__container}>
         {/* Logo */}
-          <Button component={Link} to="/" className={styles.header__logo} sx={{ p: 0, minWidth: 0 }}>
+          <Button component={Link} to={routesDashboard.home} className={styles.header__logo} sx={{ p: 0, minWidth: 0 }}>
             <img src="/krix-logo.svg" alt="Krix" />
           </Button>
 
         {/* Navigation */}
         <nav className={styles.header__nav}>
-            <Button component={Link} to="/services" className={styles['header__nav-item']}>
+            <Button component={Link} to={routesDashboard.home} className={styles['header__nav-item']}>
               Inicio
-            </Button>
-            <Button component={Link} to="/about-us" className={styles['header__nav-item']}>
-              Nosotros
-            </Button>
-            <Button component={Link} to="/contact" className={styles['header__nav-item']}>
-              Contacto
-            </Button>
-            <Button component={Link} to="/search" className={styles['header__nav-item']}>
-              Buscar
             </Button>
         </nav>
 
@@ -158,7 +158,7 @@ function Header() {
         <div className={styles.header__actions}>
             {isAuthenticated && (
               <IconButton
-                onClick={() => navigate('/cart')}
+                onClick={() => navigate(routesDashboard.cart)}
                 className={styles['header__actions-cart']}
               >
                 <ShoppingCartIcon />

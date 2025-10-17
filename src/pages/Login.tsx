@@ -24,6 +24,7 @@ import {
 } from '@/pages/styled/CommonStyled'
 
 import type { AlertColor } from '@mui/material/Alert'
+import { routesDashboard } from '@/routes/dashboardRoutes'
 
 type LoginFormData = { email: string; password: string }
 const defaultValues = { email: '', password: '' }
@@ -48,7 +49,7 @@ function Login() {
     try {
       const tokens = await signIn(data.email, data.password)
       localStorage.setItem('token', tokens.accessToken)
-      navigate('/app/services')
+      navigate(routesDashboard.home);
     } catch (error) {
       console.error(error)
       setAlertType('error')
