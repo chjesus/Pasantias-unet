@@ -7,9 +7,9 @@ function Home() {
   const [showCart, setShowCart] = useState(true)
 
   const handleTest = () => {
-    addItem({
-      id: '1',
-      name: 'Articulo de prueba',
+    addItem({ 
+      id: '1', 
+      name: 'Articulo de prueba ', 
       quantity: 1,
       price: 150000,
       currency: 'COP',
