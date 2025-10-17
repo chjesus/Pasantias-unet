@@ -15,6 +15,7 @@ import styles from './ServicesPage.module.scss'
 import { Fragment } from 'react/jsx-runtime'
 import { useNavigate } from 'react-router'
 import { routesDashboard } from '@/routes/dashboardRoutes'
+import { MetricsProvider } from '../components/common/MetricsProvider'
 
 const ServicesPage = () => {
   const navigate = useNavigate()
@@ -54,8 +55,9 @@ const ServicesPage = () => {
   }
 
   return (
-    <Fragment>
-      <Box component="div" className={styles.services}>
+    <MetricsProvider pageName="ServicesPage">
+      <Fragment>
+        <Box component="div" className={styles.services}>
         {/* Hero Section */}
         <Container
           component="section"
@@ -153,7 +155,8 @@ const ServicesPage = () => {
           ))}
         </Container>
       </Box>
-    </Fragment>
+      </Fragment>
+    </MetricsProvider>
   )
 }
 

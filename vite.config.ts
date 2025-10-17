@@ -25,6 +25,12 @@ export default defineConfig(({ mode }) => {
           changeOrigin: true,
           secure: false,
         },
+        '/metrics': {
+          target: 'https://pq7cyoqls5.execute-api.us-east-1.amazonaws.com/prod-metric-krix',
+          changeOrigin: true,
+          secure: true,
+          rewrite: (path) => path.replace(/^\/metrics/, '/metrics')
+        },
       },
     },
     define: { global: APP_GLOBAL },
