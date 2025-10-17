@@ -26,7 +26,18 @@ dist-ssr
 # Environment variables
 .env
 
+# Build outputs
 node_modules
 dist
 dist-ssr
 dev-dist
+
+# PWA files generated automatically
+sw.js
+workbox-*.js
+manifest.webmanifest
+registerSW.js
+
+# Development files
+*.tsbuildinfo
+.cache

@@ -62,3 +62,13 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_REGION: us-east-1   # cambia según tu región
           SOURCE_DIR: ./dist       # carpeta con tus archivos
+
+      - name: Configure S3 for SPA routing
+        run: |
+          aws s3 cp ./dist/index.html s3://krixx-app/index.html --cache-control "no-cache"
+          aws configure set default.s3.max_bandwidth 50MB/s
+          aws configure set default.s3.max_concurrent_requests 10
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: us-east-1
