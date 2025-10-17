@@ -93,7 +93,7 @@ function Register() {
               component="p"
               sx={{ textAlign: 'center' }}
             >
-              Ingresa tus detalles para registrarte en Krix y acceder a
+              Ingresa tus detalles para registrarte en Krixx y acceder a
               nuestros servicios.
             </Typography>
           </Grid>
