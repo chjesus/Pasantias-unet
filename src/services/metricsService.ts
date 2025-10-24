@@ -88,7 +88,6 @@ class MetricsService {
       timeout: 5000,
       headers: {
         'Content-Type': 'application/json',
-        'X-Metrics-Version': '1.0'
       }
     });
 

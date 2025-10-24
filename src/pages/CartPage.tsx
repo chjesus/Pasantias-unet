@@ -15,41 +15,6 @@ const CartPage = () => {
   const { addItem } = useCartStore()
   const [showAlert, setShowAlert] = useState(false)
 
-  // Ejemplo de cómo agregar items al carrito
-  const addExampleItem = () => {
-    const exampleItem = {
-      id: '1',
-      name: 'Instalación de Grifo de Cocina',
-      quantity: 1,
-      price: 75000,
-      currency: 'COP',
-      providerName: 'Maestro Fontanero Juan',
-      image: '/api/placeholder/80/80',
-      configuration: ['Material: Acero Inoxidable', 'Tipo: Monomando', 'Garantía: 2 años']
-    }
-    
-    addItem(exampleItem)
-    setShowAlert(true)
-    setTimeout(() => setShowAlert(false), 3000)
-  }
-
-  const addAnotherExampleItem = () => {
-    const exampleItem2 = {
-      id: '2',
-      name: 'Instalación Climatización Split',
-      quantity: 1,
-      price: 450000,
-      currency: 'COP',
-      providerName: 'ClimaPro Solutions',
-      image: '/api/placeholder/80/80',
-      configuration: ['Potencia: 3000 frigorías', 'Eficiencia: A+++', 'Instalación: Pared']
-    }
-    
-    addItem(exampleItem2)
-    setShowAlert(true)
-    setTimeout(() => setShowAlert(false), 3000)
-  }
-
   return (
     <div className={styles['cart-page']}>
       <Container maxWidth="lg">
@@ -61,22 +26,6 @@ const CartPage = () => {
           <Typography variant="body1" color="text.secondary" className={styles['cart-page__description']}>
             Revisa y administra los servicios que has seleccionado
           </Typography>
-
-          <Box className={styles['cart-page__demo-buttons']}>
-            <Button
-              variant="contained"
-              onClick={addExampleItem}
-            >
-              Agregar Grifo al Carrito
-            </Button>
-            
-            <Button
-              variant="outlined"
-              onClick={addAnotherExampleItem}
-            >
-              Agregar Climatización al Carrito
-            </Button>
-          </Box>
 
           {showAlert && (
             <Alert severity="success" className={styles['cart-page__alert']}>

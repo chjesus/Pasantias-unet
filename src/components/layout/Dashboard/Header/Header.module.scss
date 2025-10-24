@@ -1,18 +1,21 @@
 .header {
-  width: 100%;
+  width: 100vw !important; // Asegurar que tome todo el viewport width
   height: 72px;
   background: white;
   border-bottom: 1px solid rgba(0, 0, 0, 0.1);
   position: sticky;
   top: 0;
   z-index: 1000;
+  left: 0; // Asegurar posicionamiento desde el borde izquierdo
 
   &__container {
+    width: 100% !important;
+    max-width: none !important;
     height: 100%;
     display: flex;
     align-items: center;
     gap: 32px;
-    padding: 0 24px;
+    padding: 0 !important; // El padding se maneja desde el sx prop
   }
 
   &__logo {
@@ -90,6 +93,12 @@
     }
   }
 
+  @media (min-width: 901px) {
+    &__container {
+      padding: 0 32px !important; // Más padding en desktop
+    }
+  }
+
   @media (max-width: 900px) {
     &__nav {
       display: none; // Se ocultará en móvil y se mostrará en un menú hamburguesa
@@ -105,7 +114,7 @@
 
     &__container {
       gap: 16px;
-      padding: 0 16px;
+      padding: 0 16px !important;
     }
 
     &__logo img {

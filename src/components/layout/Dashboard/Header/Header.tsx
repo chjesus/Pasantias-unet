@@ -95,7 +95,16 @@ function Header() {
 
   return (
     <header className={styles.header}>
-      <Container maxWidth={false} className={styles.header__container}>
+      <Container 
+        maxWidth={false} 
+        className={styles.header__container}
+        sx={{ 
+          width: '100%', 
+          maxWidth: 'none !important',
+          px: { xs: 2, sm: 3, md: 4 }, // Responsive padding
+          margin: 0
+        }}
+      >
         {/* Logo */}
           <Button component={Link} to={routesDashboard.home} className={styles.header__logo} sx={{ p: 0, minWidth: 0 }}>
             <img src="/krix-logo.svg" alt="Krix" />
